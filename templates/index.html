@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="mb-4">
+  <h1 class="text-lg font-bold text-gray-800">{{ today_fmt }}</h1>
+</div>
+
+<!-- Protein progress bar -->
+{% set raw_pct = ((totals.protein / protein_target) * 100) | int %}
+{% set pct = raw_pct if raw_pct <= 100 else 100 %}
+<div class="bg-white rounded-2xl shadow-sm p-5 mb-4">
+  <div class="flex items-center justify-between mb-2">
+    <span class="font-semibold text-gray-700">Protein</span>
+    <span class="text-xl font-bold {% if totals.protein >= protein_target %}text-green-600{% else %}text-amber-500{% endif %}">
+      {{ totals.protein }}g
+      <span class="text-sm font-normal text-gray-400">/ {{ protein_target }}g</span>
+    </span>
+  </div>
+  <div class="w-full bg-gray-100 rounded-full h-3">
+    <div class="h-3 rounded-full transition-all duration-300 {% if pct >= 100 %}bg-green-500{% else %}bg-amber-400{% endif %}"
+         style="width: {{ pct }}%"></div>
+  </div>
+  <p class="text-xs text-gray-400 mt-1.5">
+    {% if totals.protein >= protein_target %}
+      ✓ Target reached
+    {% else %}
+      {{ protein_target - totals.protein | round(1) }}g to go
+    {% endif %}
+  </p>
+</div>
+
+<!-- Nutrient grid -->
+<div class="grid grid-cols-2 gap-3 mb-4">
+  {% for label, value, unit, colour in [
+      ('Calories',   totals.calories, 'kcal', 'text-orange-500'),
+      ('Carbs',      totals.carbs,    'g',    'text-blue-500'),
+      ('Fat',        totals.fat,      'g',    'text-purple-500'),
+      ('Sat Fat',    totals.sat_fat,  'g',    'text-red-500'),
+      ('Fibre',      totals.fibre,    'g',    'text-green-600'),
+      ('Calcium',    totals.calcium,  'mg',   'text-cyan-600'),
+      ('Sodium',     totals.sodium,   'mg',   'text-yellow-600'),
+  ] %}
+  <div class="bg-white rounded-xl shadow-sm p-4">
+    <p class="text-xs text-gray-400 mb-1">{{ label }}</p>
+    <p class="text-xl font-bold {{ colour }}">
+      {{ value }}<span class="text-xs font-normal text-gray-400 ml-0.5">{{ unit }}</span>
+    </p>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Add food -->
+<div class="bg-white rounded-2xl shadow-sm p-5 mb-4">
+  <h2 class="font-semibold text-gray-700 mb-3">Add Food</h2>
+  <form action="/log/add" method="post" class="space-y-3">
+    <input type="hidden" name="log_date" value="{{ today }}">
+    <select name="food_id" id="food-select" onchange="updateAmount(this)"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-400">
+      <option value="">Select a food…</option>
+      {% for food in foods | sort(attribute='name') %}
+      <option value="{{ food.id }}"
+              data-default="{{ food.default_amount }}"
+              data-unit="{{ food.unit_label }}"
+              data-type="{{ food.unit_type }}">{{ food.name }}</option>
+      {% endfor %}
+    </select>
+    <div class="flex gap-2 items-center">
+      <div class="relative flex-1">
+        <input type="number" name="amount" id="amount-input"
+               value="100" min="0.1" step="any"
+               class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm pr-10 focus:outline-none focus:ring-2 focus:ring-green-400">
+        <span id="unit-label" class="absolute right-3 top-2.5 text-sm text-gray-400">g</span>
+      </div>
+      <button type="submit"
+              class="px-5 py-2.5 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white rounded-lg text-sm font-semibold">
+        Add
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- Today's log -->
+{% if entries %}
+<div class="bg-white rounded-2xl shadow-sm p-5">
+  <h2 class="font-semibold text-gray-700 mb-3">Today's Log</h2>
+  <div class="divide-y divide-gray-50">
+    {% for e in entries %}
+    <div class="flex items-center justify-between py-2.5 first:pt-0 last:pb-0">
+      <div class="flex-1 min-w-0 pr-2">
+        <p class="text-sm font-medium text-gray-800 truncate">{{ e.name }}</p>
+        <p class="text-xs text-gray-400 mt-0.5">
+          {{ e.amount }}{{ e.unit_label }} &middot;
+          {{ e.total_calories }} kcal &middot;
+          <span class="text-amber-600 font-medium">{{ e.total_protein }}g protein</span>
+          {% if e.total_fibre > 0 %} &middot; {{ e.total_fibre }}g fibre{% endif %}
+        </p>
+      </div>
+      <form action="/log/delete/{{ e.id }}" method="post">
+        <button type="submit"
+                class="text-gray-300 hover:text-red-400 text-xl leading-none px-1 py-0.5">
+          &times;
+        </button>
+      </form>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% else %}
+<div class="text-center py-10 text-gray-400">
+  <p class="text-5xl mb-3">🍽️</p>
+  <p class="text-sm">Nothing logged yet. Add your first food above.</p>
+</div>
+{% endif %}
+
+<script>
+const foodMeta = {
+  {% for food in foods %}
+  {{ food.id }}: { def: {{ food.default_amount }}, unit: "{{ food.unit_label }}" },
+  {% endfor %}
+};
+function updateAmount(sel) {
+  const meta = foodMeta[sel.value];
+  const inp = document.getElementById('amount-input');
+  const lbl = document.getElementById('unit-label');
+  if (meta) { inp.value = meta.def; lbl.textContent = meta.unit; }
+  else       { inp.value = 100;     lbl.textContent = 'g'; }
+}
+</script>
+
+{% endblock %}

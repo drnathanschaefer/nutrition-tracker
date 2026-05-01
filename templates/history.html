@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1 class="text-lg font-bold text-gray-800 mb-4">History</h1>
+
+{% if days %}
+<div class="space-y-3">
+  {% for day in days %}
+  {% set raw_pct = ((day.protein / protein_target) * 100) | int %}
+  {% set pct = raw_pct if raw_pct <= 100 else 100 %}
+  <div class="bg-white rounded-2xl shadow-sm p-4">
+    <div class="flex items-center justify-between mb-2">
+      <span class="font-medium text-gray-700 text-sm">{{ day.date }}</span>
+      <span class="text-sm font-semibold {% if day.protein >= protein_target %}text-green-600{% else %}text-amber-500{% endif %}">
+        {{ day.protein }}g protein
+        {% if day.protein >= protein_target %}&nbsp;✓{% endif %}
+      </span>
+    </div>
+    <div class="w-full bg-gray-100 rounded-full h-2 mb-3">
+      <div class="h-2 rounded-full {% if pct >= 100 %}bg-green-500{% else %}bg-amber-400{% endif %}"
+           style="width: {{ pct }}%"></div>
+    </div>
+    <div class="grid grid-cols-3 gap-x-2 gap-y-1 text-xs text-gray-500">
+      <span>🔥 {{ day.calories }} kcal</span>
+      <span>🥩 {{ day.carbs }}g carbs</span>
+      <span>🧈 {{ day.fat }}g fat</span>
+      <span>🌿 {{ day.fibre }}g fibre</span>
+      <span>🦴 {{ day.calcium }}mg Ca</span>
+      <span>🧂 {{ day.sodium }}mg Na</span>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-14 text-gray-400">
+  <p class="text-5xl mb-3">📅</p>
+  <p class="text-sm">No history yet — start logging today!</p>
+</div>
+{% endif %}
+
+{% endblock %}

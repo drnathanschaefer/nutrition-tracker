@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="flex items-center justify-between mb-4">
+  <h1 class="text-lg font-bold text-gray-800">Food Library</h1>
+  <button onclick="toggleForm()"
+          class="text-sm bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium">
+    + Add Food
+  </button>
+</div>
+
+<!-- Add food form -->
+<div id="add-form" class="hidden bg-white rounded-2xl shadow-sm p-5 mb-4">
+  <h2 class="font-semibold text-gray-700 mb-4">Add New Food</h2>
+
+  {% if has_api_key %}
+  <div class="bg-green-50 rounded-xl p-4 mb-4">
+    <p class="text-sm font-medium text-green-800 mb-2">📷 Read from nutrition label photo</p>
+    <div class="flex gap-2">
+      <input type="file" id="photo-input" accept="image/*" capture="environment"
+             class="text-xs text-gray-600 flex-1 min-w-0">
+      <button onclick="readPhoto()"
+              class="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium whitespace-nowrap">
+        Read Label
+      </button>
+    </div>
+    <p id="photo-status" class="text-xs text-gray-500 mt-1.5"></p>
+  </div>
+  <div class="border-t border-gray-100 mb-4"></div>
+  {% endif %}
+
+  <form action="/foods/add" method="post" class="space-y-3">
+    <div>
+      <label class="text-xs font-medium text-gray-500">Name</label>
+      <input type="text" name="name" id="f-name" required
+             class="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400">
+    </div>
+
+    <div class="grid grid-cols-3 gap-2">
+      <div>
+        <label class="text-xs font-medium text-gray-500">Type</label>
+        <select name="unit_type" id="f-unit-type"
+                class="mt-1 w-full border border-gray-200 rounded-lg px-2 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-400">
+          <option value="weight">Weight (g)</option>
+          <option value="volume">Volume (ml)</option>
+          <option value="unit">Unit (each)</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-xs font-medium text-gray-500">Unit label</label>
+        <input type="text" name="unit_label" id="f-unit-label" value="g"
+               class="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400">
+      </div>
+      <div>
+        <label class="text-xs font-medium text-gray-500">Default amt</label>
+        <input type="number" name="default_amount" id="f-default" value="100" min="0.1" step="any"
+               class="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400">
+      </div>
+    </div>
+
+    <p class="text-xs text-gray-400">Nutrition per 100g / 100ml — or per unit if type is "Unit"</p>
+
+    <div class="grid grid-cols-2 gap-2">
+      {% for fname, flabel in [
+          ('calories','Calories (kcal)'), ('protein','Protein (g)'),
+          ('fat','Fat (g)'),              ('sat_fat','Sat Fat (g)'),
+          ('carbs','Carbs (g)'),          ('fibre','Fibre (g)'),
+          ('calcium','Calcium (mg)'),     ('sodium','Sodium (mg)'),
+      ] %}
+      <div>
+        <label class="text-xs font-medium text-gray-500">{{ flabel }}</label>
+        <input type="number" name="{{ fname }}" id="f-{{ fname }}" value="0" min="0" step="any"
+               class="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400">
+      </div>
+      {% endfor %}
+    </div>
+
+    <div>
+      <label class="text-xs font-medium text-gray-500">Notes (optional)</label>
+      <input type="text" name="notes" id="f-notes"
+             class="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400">
+    </div>
+
+    <button type="submit"
+            class="w-full py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-semibold">
+      Save Food
+    </button>
+  </form>
+</div>
+
+<!-- Food list -->
+<div class="space-y-2">
+  {% for food in foods %}
+  <div class="bg-white rounded-xl shadow-sm p-4">
+    <div class="flex items-start justify-between gap-2">
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-semibold text-gray-800">{{ food.name }}</p>
+        <p class="text-xs text-gray-400 mt-0.5 leading-relaxed">
+          per {% if food.unit_type == 'unit' %}1{% else %}100{% endif %}{{ food.unit_label }}:
+          <span class="text-orange-500">{{ food.calories }} kcal</span> &middot;
+          <span class="text-amber-600 font-medium">{{ food.protein }}g P</span> &middot;
+          {{ food.fat }}g F &middot;
+          {{ food.carbs }}g C &middot;
+          {{ food.fibre }}g fibre
+          {% if food.calcium > 0 %} &middot; {{ food.calcium }}mg Ca{% endif %}
+          &middot; {{ food.sodium }}mg Na
+        </p>
+        {% if food.notes %}
+        <p class="text-xs text-orange-500 mt-0.5">⚠ {{ food.notes }}</p>
+        {% endif %}
+      </div>
+      <form action="/foods/delete/{{ food.id }}" method="post"
+            onsubmit="return confirm('Delete {{ food.name }}?')">
+        <button type="submit"
+                class="text-xs text-gray-300 hover:text-red-400 py-0.5 px-1 flex-shrink-0">
+          Delete
+        </button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<script>
+function toggleForm() {
+  const f = document.getElementById('add-form');
+  f.classList.toggle('hidden');
+  if (!f.classList.contains('hidden')) f.scrollIntoView({ behavior: 'smooth' });
+}
+
+{% if has_api_key %}
+async function readPhoto() {
+  const file = document.getElementById('photo-input').files[0];
+  const status = document.getElementById('photo-status');
+  if (!file) { status.textContent = 'Please select a photo first.'; return; }
+
+  status.textContent = 'Reading label…';
+  const fd = new FormData();
+  fd.append('photo', file);
+
+  try {
+    const res = await fetch('/foods/from-photo', { method: 'POST', body: fd });
+    const d = await res.json();
+    if (d.error) { status.textContent = 'Error: ' + d.error; return; }
+
+    const map = {
+      name: 'f-name', calories: 'f-calories', protein: 'f-protein',
+      fat: 'f-fat', sat_fat: 'f-sat_fat', carbs: 'f-carbs',
+      fibre: 'f-fibre', calcium: 'f-calcium', sodium: 'f-sodium',
+      default_amount: 'f-default', unit_label: 'f-unit-label',
+    };
+    for (const [key, id] of Object.entries(map)) {
+      const el = document.getElementById(id);
+      if (el && d[key] !== undefined) el.value = d[key];
+    }
+    if (d.unit_type) document.getElementById('f-unit-type').value = d.unit_type;
+    status.textContent = '✓ Label read — review values below then click Save.';
+  } catch {
+    status.textContent = 'Error reading photo. Please try again.';
+  }
+}
+{% endif %}
+</script>
+
+{% endblock %}
