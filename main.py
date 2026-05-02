@@ -116,6 +116,12 @@ async def delete_log(entry_id: int):
     return RedirectResponse(url="/", status_code=303)
 
 
+@app.post("/log/clear")
+async def clear_log(log_date: str = Form(...)):
+    database.delete_all_log_entries(log_date)
+    return RedirectResponse(url="/", status_code=303)
+
+
 @app.post("/foods/add")
 async def add_food(
     name: str = Form(...),

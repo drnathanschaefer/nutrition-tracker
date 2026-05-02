@@ -109,7 +109,17 @@
 <!-- Today's log -->
 {% if entries %}
 <div class="space-y-3">
-  <h2 class="font-semibold text-gray-700 px-1">Today's Log</h2>
+  <div class="flex items-center justify-between px-1">
+    <h2 class="font-semibold text-gray-700">Today's Log</h2>
+    <form action="/log/clear" method="post"
+          onsubmit="return confirm('Clear everything logged today?')">
+      <input type="hidden" name="log_date" value="{{ today }}">
+      <button type="submit"
+              class="text-xs text-red-400 hover:text-red-600 font-medium">
+        Clear all
+      </button>
+    </form>
+  </div>
   {% set ns = namespace(last_meal='__start__') %}
   {% for e in entries %}
 

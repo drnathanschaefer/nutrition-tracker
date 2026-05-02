@@ -465,6 +465,11 @@ def delete_log_entry(entry_id):
         conn.execute("DELETE FROM log_entries WHERE id = ?", (entry_id,))
 
 
+def delete_all_log_entries(date_str):
+    with get_db() as conn:
+        conn.execute("DELETE FROM log_entries WHERE date = ?", (date_str,))
+
+
 def add_food(name, unit_type, unit_label, default_amount,
              calories, protein, fat, sat_fat, carbs, fibre, calcium, sodium, notes=""):
     with get_db() as conn:
