@@ -1,10 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="mb-4">
-  <h1 class="text-lg font-bold text-gray-800">{{ today_fmt }}</h1>
-</div>
-
 <!-- Nutrient grid -->
 <div class="grid grid-cols-2 gap-3 mb-4">
   {% for label, value, unit, colour in [
