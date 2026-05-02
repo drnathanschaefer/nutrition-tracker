@@ -31,6 +31,10 @@ INITIAL_FOODS = [
     ("Maple Movement Energy Gel (Original)",    "unit",   "sachet",  1,  110,  0.0, 0.0, 0.0, 27.0,  0.0,   0,   0,  "1 sachet = 30ml"),
     ("Maple Movement Lemon + Salt Gel",         "unit",   "sachet",  1,  104,  0.0, 0.0, 0.0, 26.8,  0.0,   0, 105,  "1 sachet = 32ml"),
     ("Nectar Sport Energy Gel (Stim)",          "unit",   "sachet",  1,   95,  0.1, 0.0, 0.0, 23.4,  0.0,   0,   4,  "Contains 100mg caffeine per sachet"),
+    ("Hemp Seeds (hulled)",                     "weight", "g",        5,  553, 31.6,48.7, 4.6,  8.7,  4.0,  70,   5,  ""),
+    ("Flax Seeds",                              "weight", "g",        5,  534, 18.3,42.2, 3.7, 28.9, 27.3, 255,  30,  ""),
+    ("Chia Seeds",                              "weight", "g",        5,  486, 16.5,30.7, 3.3, 42.1, 34.4, 631,  16,  ""),
+    ("Coconut Flakes (desiccated)",             "weight", "g",        5,  660,  6.9,64.5,57.2, 23.7, 15.4,  26,  37,  "High sat fat"),
 ]
 
 
@@ -106,6 +110,46 @@ def init_db():
                 INITIAL_FOODS,
             )
 
+        # Migration: add new foods if they don't exist yet
+        new_foods = [
+            ("Hemp Seeds (hulled)",          "weight", "g",  5, 553, 31.6, 48.7,  4.6,  8.7,  4.0,  70,  5, ""),
+            ("Flax Seeds",                   "weight", "g",  5, 534, 18.3, 42.2,  3.7, 28.9, 27.3, 255, 30, ""),
+            ("Chia Seeds",                   "weight", "g",  5, 486, 16.5, 30.7,  3.3, 42.1, 34.4, 631, 16, ""),
+            ("Coconut Flakes (desiccated)",  "weight", "g",  5, 660,  6.9, 64.5, 57.2, 23.7, 15.4,  26, 37, "High sat fat"),
+        ]
+        for food in new_foods:
+            exists = conn.execute("SELECT 1 FROM foods WHERE name = ?", (food[0],)).fetchone()
+            if not exists:
+                conn.execute(
+                    """INSERT INTO foods
+                       (name, unit_type, unit_label, default_amount,
+                        calories, protein, fat, sat_fat, carbs, fibre, calcium, sodium, notes)
+                       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                    food,
+                )
+
+        # Migration: add seeds/coconut to existing Breakfast meal if missing
+        breakfast = conn.execute("SELECT id FROM meals WHERE name = 'Breakfast'").fetchone()
+        if breakfast:
+            new_breakfast_items = [
+                ("Hemp Seeds (hulled)",         5),
+                ("Flax Seeds",                  5),
+                ("Chia Seeds",                  5),
+                ("Coconut Flakes (desiccated)", 5),
+            ]
+            for food_name, amount in new_breakfast_items:
+                food = conn.execute("SELECT id FROM foods WHERE name = ?", (food_name,)).fetchone()
+                if food:
+                    already = conn.execute(
+                        "SELECT 1 FROM meal_items WHERE meal_id = ? AND food_id = ?",
+                        (breakfast["id"], food["id"]),
+                    ).fetchone()
+                    if not already:
+                        conn.execute(
+                            "INSERT INTO meal_items (meal_id, food_id, amount) VALUES (?,?,?)",
+                            (breakfast["id"], food["id"], amount),
+                        )
+
         meal_count = conn.execute("SELECT COUNT(*) FROM meals").fetchone()[0]
         if meal_count == 0:
             conn.execute("INSERT INTO meals (name) VALUES (?)", ("Breakfast",))
@@ -119,6 +163,10 @@ def init_db():
                 ("Honest to Goodness Psyllium Husks",       12),
                 ("Kellogg's All-Bran Original",             30),
                 ("Ocean Spray Craisins (50% Less Sugar)",   30),
+                ("Hemp Seeds (hulled)",                      5),
+                ("Flax Seeds",                               5),
+                ("Chia Seeds",                               5),
+                ("Coconut Flakes (desiccated)",              5),
             ]
             for food_name, amount in breakfast_items:
                 food = conn.execute(
