@@ -134,13 +134,14 @@ async def add_food(
     fat: float = Form(0),
     sat_fat: float = Form(0),
     carbs: float = Form(0),
+    sugar: float = Form(0),
     fibre: float = Form(0),
     calcium: float = Form(0),
     sodium: float = Form(0),
     notes: str = Form(""),
 ):
     database.add_food(name, unit_type, unit_label, default_amount,
-                      calories, protein, fat, sat_fat, carbs, fibre, calcium, sodium, notes)
+                      calories, protein, fat, sat_fat, carbs, sugar, fibre, calcium, sodium, notes)
     return RedirectResponse(url="/foods", status_code=303)
 
 
@@ -179,7 +180,7 @@ async def food_from_photo(photo: UploadFile = File(...)):
                         "Extract nutrition info from this food label. "
                         "Return ONLY a JSON object with these exact keys: "
                         "name (string), calories (kcal per 100g or per 100ml), "
-                        "protein (g), fat (g), sat_fat (g), carbs (g), fibre (g), "
+                        "protein (g), fat (g), sat_fat (g), carbs (g), sugar (g), fibre (g), "
                         "calcium (mg), sodium (mg), "
                         "unit_type ('weight' or 'volume' or 'unit'), "
                         "unit_label ('g' or 'ml' or 'sachet' etc), "
