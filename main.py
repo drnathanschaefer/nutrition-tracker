@@ -19,6 +19,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 templates = Jinja2Templates(directory="templates")
+templates.env.globals["current_date"] = lambda: date.today().strftime("%A, %-d %B %Y")
 
 
 @app.get("/", response_class=HTMLResponse)
