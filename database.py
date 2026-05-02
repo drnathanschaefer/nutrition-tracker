@@ -178,13 +178,20 @@ def init_db():
 
         # Migration: set sort orders
         sort_orders = [
-            ("Breakfast",            1),
-            ("Lunch with Couscous",  2),
-            ("Lunch with Quinoa",    3),
-            ("Walnuts & Brazil Nut", 4),
-            ("Almonds",              5),
-            ("Cashews",              6),
-            ("Pecan Nuts",           7),
+            ("Breakfast",                        1),
+            ("Lunch with Couscous",              2),
+            ("Lunch with Quinoa",                3),
+            ("Walnuts & Brazil Nut",             4),
+            ("Almonds",                          5),
+            ("Cashews",                          6),
+            ("Pecan Nuts",                       7),
+            ("Fibre Boost Protein Bar",          8),
+            ("LMNT",                             9),
+            ("Maple Movement Original Gel",     10),
+            ("Maple Movement Lemon + Salt Gel", 11),
+            ("Nectar Sport Gel",                12),
+            ("WPC Cacao",                       13),
+            ("Kimchi",                          14),
         ]
         for name, order in sort_orders:
             conn.execute("UPDATE meals SET sort_order = ? WHERE name = ?", (order, name))
@@ -207,6 +214,28 @@ def init_db():
                         "INSERT INTO meal_items (meal_id, food_id, amount) VALUES (?,?,?)",
                         (mid, food["id"], 30),
                     )
+
+        # Migration: add post-pecan meals if missing
+        extra_meals = [
+            ("Fibre Boost Protein Bar",            8,  [("Fibre Boost White Choc Protein Bar",      1)]),
+            ("LMNT",                               9,  [("LMNT Watermelon Salt Electrolyte",         1)]),
+            ("Maple Movement Original Gel",       10,  [("Maple Movement Energy Gel (Original)",     1)]),
+            ("Maple Movement Lemon + Salt Gel",   11,  [("Maple Movement Lemon + Salt Gel",          1)]),
+            ("Nectar Sport Gel",                  12,  [("Nectar Sport Energy Gel (Stim)",           1)]),
+            ("WPC Cacao",                         13,  [("Professional Whey WPC Organic Cacao",     50)]),
+            ("Kimchi",                            14,  [("The Kimchi Company Vegan Kimchi",         30)]),
+        ]
+        for meal_name, order, items in extra_meals:
+            if not conn.execute("SELECT 1 FROM meals WHERE name = ?", (meal_name,)).fetchone():
+                conn.execute("INSERT INTO meals (name, sort_order) VALUES (?, ?)", (meal_name, order))
+                mid = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+                for food_name, amount in items:
+                    food = conn.execute("SELECT id FROM foods WHERE name = ?", (food_name,)).fetchone()
+                    if food:
+                        conn.execute(
+                            "INSERT INTO meal_items (meal_id, food_id, amount) VALUES (?,?,?)",
+                            (mid, food["id"], amount),
+                        )
 
         # Migration: add nut snack meals if missing
         nut_meals = [
@@ -301,10 +330,17 @@ def init_db():
             ]
             # Seed nut snack meals
             for meal_name, sort_order, items in [
-                ("Walnuts & Brazil Nut",  4, [("Walnuts", 30), ("Brazil Nuts", 1)]),
-                ("Almonds",               5, [("Almonds", 30)]),
-                ("Cashews",               6, [("Cashews", 30)]),
-                ("Pecan Nuts",            7, [("Pecan Nuts", 30)]),
+                ("Walnuts & Brazil Nut",            4,  [("Walnuts", 30), ("Brazil Nuts", 1)]),
+                ("Almonds",                         5,  [("Almonds", 30)]),
+                ("Cashews",                         6,  [("Cashews", 30)]),
+                ("Pecan Nuts",                      7,  [("Pecan Nuts", 30)]),
+                ("Fibre Boost Protein Bar",         8,  [("Fibre Boost White Choc Protein Bar",      1)]),
+                ("LMNT",                            9,  [("LMNT Watermelon Salt Electrolyte",         1)]),
+                ("Maple Movement Original Gel",    10,  [("Maple Movement Energy Gel (Original)",     1)]),
+                ("Maple Movement Lemon + Salt Gel",11,  [("Maple Movement Lemon + Salt Gel",          1)]),
+                ("Nectar Sport Gel",               12,  [("Nectar Sport Energy Gel (Stim)",           1)]),
+                ("WPC Cacao",                      13,  [("Professional Whey WPC Organic Cacao",     50)]),
+                ("Kimchi",                         14,  [("The Kimchi Company Vegan Kimchi",         30)]),
             ]:
                 conn.execute("INSERT INTO meals (name, sort_order) VALUES (?, ?)", (meal_name, sort_order))
                 mid = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
