@@ -1,0 +1,11 @@
+{
+  "name": "Nutrition Tracker",
+  "short_name": "Nutrition",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f0fdf4",
+  "theme_color": "#16a34a",
+  "icons": [
+    { "src": "/static/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

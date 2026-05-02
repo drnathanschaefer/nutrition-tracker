@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="115" fill="#f0fdf4"/>
+
+  <!-- Stem -->
+  <path d="M 256 118 C 259 94 270 72 282 54"
+        stroke="#713f12" stroke-width="13" stroke-linecap="round" fill="none"/>
+
+  <!-- Leaf -->
+  <path d="M 268 88 C 290 62 328 56 330 74 C 312 96 278 94 268 88 Z"
+        fill="#15803d"/>
+
+  <!-- Apple body -->
+  <path d="
+    M 256 172
+    C 232 172 178 158 150 175
+    C 110 198 92 258 102 320
+    C 112 378 156 430 202 440
+    C 224 445 242 435 256 428
+    C 270 435 288 445 310 440
+    C 356 430 400 378 410 320
+    C 420 258 402 198 362 175
+    C 334 158 280 172 256 172 Z
+  " fill="#16a34a"/>
+
+  <!-- Top indent -->
+  <path d="
+    M 256 172
+    C 247 152 243 132 250 116
+    C 252 110 256 106 256 106
+    C 256 106 260 110 262 116
+    C 269 132 265 152 256 172 Z
+  " fill="#f0fdf4"/>
+
+  <!-- Shine highlight -->
+  <ellipse cx="192" cy="248" rx="22" ry="42"
+           fill="white" opacity="0.22"
+           transform="rotate(-28 192 248)"/>
+</svg>
