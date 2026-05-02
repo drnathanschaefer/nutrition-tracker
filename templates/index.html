@@ -5,40 +5,17 @@
   <h1 class="text-lg font-bold text-gray-800">{{ today_fmt }}</h1>
 </div>
 
-<!-- Protein progress bar -->
-{% set raw_pct = ((totals.protein / protein_target) * 100) | int %}
-{% set pct = raw_pct if raw_pct <= 100 else 100 %}
-<div class="bg-white rounded-2xl shadow-sm p-5 mb-4">
-  <div class="flex items-center justify-between mb-2">
-    <span class="font-semibold text-gray-700">Protein</span>
-    <span class="text-xl font-bold {% if totals.protein >= protein_target %}text-green-600{% else %}text-amber-500{% endif %}">
-      {{ totals.protein }}g
-      <span class="text-sm font-normal text-gray-400">/ {{ protein_target }}g</span>
-    </span>
-  </div>
-  <div class="w-full bg-gray-100 rounded-full h-3">
-    <div class="h-3 rounded-full transition-all duration-300 {% if pct >= 100 %}bg-green-500{% else %}bg-amber-400{% endif %}"
-         style="width: {{ pct }}%"></div>
-  </div>
-  <p class="text-xs text-gray-400 mt-1.5">
-    {% if totals.protein >= protein_target %}
-      ✓ Target reached
-    {% else %}
-      {{ protein_target - totals.protein | round(1) }}g to go
-    {% endif %}
-  </p>
-</div>
-
 <!-- Nutrient grid -->
 <div class="grid grid-cols-2 gap-3 mb-4">
   {% for label, value, unit, colour in [
       ('Calories',   totals.calories, 'kcal', 'text-orange-500'),
+      ('Protein',    totals.protein,  'g',    'text-amber-500'),
       ('Carbs',      totals.carbs,    'g',    'text-blue-500'),
       ('Fat',        totals.fat,      'g',    'text-purple-500'),
-      ('Sat Fat',    totals.sat_fat,  'g',    'text-red-500'),
       ('Fibre',      totals.fibre,    'g',    'text-green-600'),
-      ('Calcium',    totals.calcium,  'mg',   'text-cyan-600'),
+      ('Sat Fat',    totals.sat_fat,  'g',    'text-red-500'),
       ('Sodium',     totals.sodium,   'mg',   'text-yellow-600'),
+      ('Calcium',    totals.calcium,  'mg',   'text-cyan-600'),
   ] %}
   <div class="bg-white rounded-xl shadow-sm p-4">
     <p class="text-xs text-gray-400 mb-1">{{ label }}</p>
