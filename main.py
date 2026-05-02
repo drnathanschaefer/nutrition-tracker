@@ -28,8 +28,7 @@ async def today(request: Request):
     entries = database.get_day_entries(today_str)
     totals = database.get_day_totals(today_str)
     foods = database.get_all_foods()
-    return templates.TemplateResponse("index.html", {
-        "request": request,
+    return templates.TemplateResponse(request=request, name="index.html", context={
         "today": today_str,
         "today_fmt": today_fmt,
         "entries": entries,
@@ -42,8 +41,7 @@ async def today(request: Request):
 @app.get("/history", response_class=HTMLResponse)
 async def history_page(request: Request):
     days = database.get_history(30)
-    return templates.TemplateResponse("history.html", {
-        "request": request,
+    return templates.TemplateResponse(request=request, name="history.html", context={
         "days": days,
         "protein_target": 200,
     })
@@ -53,8 +51,7 @@ async def history_page(request: Request):
 async def foods_page(request: Request):
     foods = database.get_all_foods()
     has_api_key = bool(os.environ.get("ANTHROPIC_API_KEY"))
-    return templates.TemplateResponse("foods.html", {
-        "request": request,
+    return templates.TemplateResponse(request=request, name="foods.html", context={
         "foods": foods,
         "has_api_key": has_api_key,
     })
