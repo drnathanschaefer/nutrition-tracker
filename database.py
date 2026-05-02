@@ -191,7 +191,8 @@ def init_db():
             ("Maple Movement Lemon + Salt Gel", 11),
             ("Nectar Sport Gel",                12),
             ("WPC Cacao",                       13),
-            ("Kimchi",                          14),
+            ("WPI Salted Caramel",              14),
+            ("Kimchi",                          15),
         ]
         for name, order in sort_orders:
             conn.execute("UPDATE meals SET sort_order = ? WHERE name = ?", (order, name))
@@ -223,7 +224,8 @@ def init_db():
             ("Maple Movement Lemon + Salt Gel",   11,  [("Maple Movement Lemon + Salt Gel",          1)]),
             ("Nectar Sport Gel",                  12,  [("Nectar Sport Energy Gel (Stim)",           1)]),
             ("WPC Cacao",                         13,  [("Professional Whey WPC Organic Cacao",     50)]),
-            ("Kimchi",                            14,  [("The Kimchi Company Vegan Kimchi",         30)]),
+            ("WPI Salted Caramel",                 14,  [("Professional Whey NZ WPI Salted Caramel", 50)]),
+            ("Kimchi",                            15,  [("The Kimchi Company Vegan Kimchi",         30)]),
         ]
         for meal_name, order, items in extra_meals:
             if not conn.execute("SELECT 1 FROM meals WHERE name = ?", (meal_name,)).fetchone():
@@ -340,7 +342,8 @@ def init_db():
                 ("Maple Movement Lemon + Salt Gel",11,  [("Maple Movement Lemon + Salt Gel",          1)]),
                 ("Nectar Sport Gel",               12,  [("Nectar Sport Energy Gel (Stim)",           1)]),
                 ("WPC Cacao",                      13,  [("Professional Whey WPC Organic Cacao",     50)]),
-                ("Kimchi",                         14,  [("The Kimchi Company Vegan Kimchi",         30)]),
+                ("WPI Salted Caramel",             14,  [("Professional Whey NZ WPI Salted Caramel", 50)]),
+                ("Kimchi",                         15,  [("The Kimchi Company Vegan Kimchi",         30)]),
             ]:
                 conn.execute("INSERT INTO meals (name, sort_order) VALUES (?, ?)", (meal_name, sort_order))
                 mid = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
