@@ -183,28 +183,30 @@ def init_db():
             ("Lunch with Quinoa",    3),
             ("Walnuts & Brazil Nut", 4),
             ("Almonds",              5),
-            ("Cashews & Pecan Nuts", 6),
+            ("Cashews",              6),
+            ("Pecan Nuts",           7),
         ]
         for name, order in sort_orders:
             conn.execute("UPDATE meals SET sort_order = ? WHERE name = ?", (order, name))
 
-        # Migration: combine Cashews and Pecan Nuts into one meal
-        if not conn.execute("SELECT 1 FROM meals WHERE name = 'Cashews & Pecan Nuts'").fetchone():
-            conn.execute("INSERT INTO meals (name, sort_order) VALUES (?, ?)", ("Cashews & Pecan Nuts", 6))
-            mid = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
-            for food_name in ("Cashews", "Pecan Nuts"):
+        # Migration: split "Cashews & Pecan Nuts" back into separate meals
+        combined = conn.execute("SELECT id FROM meals WHERE name = 'Cashews & Pecan Nuts'").fetchone()
+        if combined:
+            conn.execute("DELETE FROM meal_items WHERE meal_id = ?", (combined["id"],))
+            conn.execute("DELETE FROM meals WHERE id = ?", (combined["id"],))
+        for meal_name, food_name, order in [
+            ("Cashews",    "Cashews",    6),
+            ("Pecan Nuts", "Pecan Nuts", 7),
+        ]:
+            if not conn.execute("SELECT 1 FROM meals WHERE name = ?", (meal_name,)).fetchone():
+                conn.execute("INSERT INTO meals (name, sort_order) VALUES (?, ?)", (meal_name, order))
+                mid = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
                 food = conn.execute("SELECT id FROM foods WHERE name = ?", (food_name,)).fetchone()
                 if food:
                     conn.execute(
                         "INSERT INTO meal_items (meal_id, food_id, amount) VALUES (?,?,?)",
                         (mid, food["id"], 30),
                     )
-        # Remove the separate Cashews and Pecan Nuts meals
-        for old_name in ("Cashews", "Pecan Nuts"):
-            old = conn.execute("SELECT id FROM meals WHERE name = ?", (old_name,)).fetchone()
-            if old:
-                conn.execute("DELETE FROM meal_items WHERE meal_id = ?", (old["id"],))
-                conn.execute("DELETE FROM meals WHERE id = ?", (old["id"],))
 
         # Migration: add nut snack meals if missing
         nut_meals = [
@@ -301,7 +303,8 @@ def init_db():
             for meal_name, sort_order, items in [
                 ("Walnuts & Brazil Nut",  4, [("Walnuts", 30), ("Brazil Nuts", 1)]),
                 ("Almonds",               5, [("Almonds", 30)]),
-                ("Cashews & Pecan Nuts",  6, [("Cashews", 30), ("Pecan Nuts", 30)]),
+                ("Cashews",               6, [("Cashews", 30)]),
+                ("Pecan Nuts",            7, [("Pecan Nuts", 30)]),
             ]:
                 conn.execute("INSERT INTO meals (name, sort_order) VALUES (?, ?)", (meal_name, sort_order))
                 mid = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
