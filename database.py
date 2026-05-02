@@ -106,6 +106,30 @@ def init_db():
                 INITIAL_FOODS,
             )
 
+        meal_count = conn.execute("SELECT COUNT(*) FROM meals").fetchone()[0]
+        if meal_count == 0:
+            conn.execute("INSERT INTO meals (name) VALUES (?)", ("Breakfast",))
+            meal_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+            breakfast_items = [
+                ("Professional Whey WPC Natural",           50),
+                ("Macro Organic Rolled Oats",               100),
+                ("Creative Gourmet Frozen Banana Chunks",   100),
+                ("Creative Gourmet Frozen Mango Chunks",    100),
+                ("Devondale Extra Light Skim Milk",         250),
+                ("Honest to Goodness Psyllium Husks",       12),
+                ("Kellogg's All-Bran Original",             30),
+                ("Ocean Spray Craisins (50% Less Sugar)",   30),
+            ]
+            for food_name, amount in breakfast_items:
+                food = conn.execute(
+                    "SELECT id FROM foods WHERE name = ?", (food_name,)
+                ).fetchone()
+                if food:
+                    conn.execute(
+                        "INSERT INTO meal_items (meal_id, food_id, amount) VALUES (?,?,?)",
+                        (meal_id, food["id"], amount),
+                    )
+
 
 def get_all_foods():
     with get_db() as conn:
