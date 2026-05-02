@@ -171,6 +171,25 @@ def init_db():
         # Migration: rename "Lunch" to "Lunch with Couscous" if it exists
         conn.execute("UPDATE meals SET name = 'Lunch with Couscous' WHERE name = 'Lunch'")
 
+        # Migration: add nut snack meals if missing
+        nut_meals = [
+            ("Walnuts & Brazil Nut",  [("Walnuts", 30), ("Brazil Nuts", 1)]),
+            ("Almonds",               [("Almonds", 30)]),
+            ("Pecan Nuts",            [("Pecan Nuts", 30)]),
+            ("Cashews",               [("Cashews", 30)]),
+        ]
+        for meal_name, items in nut_meals:
+            if not conn.execute("SELECT 1 FROM meals WHERE name = ?", (meal_name,)).fetchone():
+                conn.execute("INSERT INTO meals (name) VALUES (?)", (meal_name,))
+                mid = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+                for food_name, amount in items:
+                    food = conn.execute("SELECT id FROM foods WHERE name = ?", (food_name,)).fetchone()
+                    if food:
+                        conn.execute(
+                            "INSERT INTO meal_items (meal_id, food_id, amount) VALUES (?,?,?)",
+                            (mid, food["id"], amount),
+                        )
+
         # Migration: add Lunch with Couscous if missing
         if not conn.execute("SELECT 1 FROM meals WHERE name = 'Lunch with Couscous'").fetchone():
             conn.execute("INSERT INTO meals (name) VALUES (?)", ("Lunch with Couscous",))
@@ -243,6 +262,23 @@ def init_db():
                 ("Chia Seeds",                               5),
                 ("Coconut Flakes (desiccated)",              5),
             ]
+            # Seed nut snack meals
+            for meal_name, items in [
+                ("Walnuts & Brazil Nut",  [("Walnuts", 30), ("Brazil Nuts", 1)]),
+                ("Almonds",               [("Almonds", 30)]),
+                ("Pecan Nuts",            [("Pecan Nuts", 30)]),
+                ("Cashews",               [("Cashews", 30)]),
+            ]:
+                conn.execute("INSERT INTO meals (name) VALUES (?)", (meal_name,))
+                mid = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+                for food_name, amount in items:
+                    food = conn.execute("SELECT id FROM foods WHERE name = ?", (food_name,)).fetchone()
+                    if food:
+                        conn.execute(
+                            "INSERT INTO meal_items (meal_id, food_id, amount) VALUES (?,?,?)",
+                            (mid, food["id"], amount),
+                        )
+
             # Seed Lunch with Couscous meal
             conn.execute("INSERT INTO meals (name) VALUES (?)", ("Lunch with Couscous",))
             lunch_couscous_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
