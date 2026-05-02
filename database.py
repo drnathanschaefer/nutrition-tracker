@@ -35,6 +35,7 @@ INITIAL_FOODS = [
     ("Flax Seeds",                              "weight", "g",        5,  534, 18.3,42.2, 3.7, 28.9, 27.3, 255,  30,  ""),
     ("Chia Seeds",                              "weight", "g",        5,  486, 16.5,30.7, 3.3, 42.1, 34.4, 631,  16,  ""),
     ("Coconut Flakes (desiccated)",             "weight", "g",        5,  660,  6.9,64.5,57.2, 23.7, 15.4,  26,  37,  "High sat fat"),
+    ("Chicken Breast (cooked)",                 "weight", "g",      125,  165, 31.0, 3.6, 1.0,  0.0,  0.0,  15,  74,  ""),
 ]
 
 
@@ -128,6 +129,33 @@ def init_db():
                     food,
                 )
 
+        # Migration: add chicken breast if missing
+        if not conn.execute("SELECT 1 FROM foods WHERE name = 'Chicken Breast (cooked)'").fetchone():
+            conn.execute(
+                """INSERT INTO foods
+                   (name, unit_type, unit_label, default_amount,
+                    calories, protein, fat, sat_fat, carbs, fibre, calcium, sodium, notes)
+                   VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                ("Chicken Breast (cooked)", "weight", "g", 125, 165, 31.0, 3.6, 1.0, 0.0, 0.0, 15, 74, ""),
+            )
+
+        # Migration: add Lunch meal if missing
+        if not conn.execute("SELECT 1 FROM meals WHERE name = 'Lunch'").fetchone():
+            conn.execute("INSERT INTO meals (name) VALUES (?)", ("Lunch",))
+            lunch_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+            lunch_items = [
+                ("Simply Wholesome Couscous Nourish Bowl", 100),
+                ("McCain Mixed Vegetables",                250),
+                ("Chicken Breast (cooked)",                125),
+            ]
+            for food_name, amount in lunch_items:
+                food = conn.execute("SELECT id FROM foods WHERE name = ?", (food_name,)).fetchone()
+                if food:
+                    conn.execute(
+                        "INSERT INTO meal_items (meal_id, food_id, amount) VALUES (?,?,?)",
+                        (lunch_id, food["id"], amount),
+                    )
+
         # Migration: add seeds/coconut to existing Breakfast meal if missing
         breakfast = conn.execute("SELECT id FROM meals WHERE name = 'Breakfast'").fetchone()
         if breakfast:
@@ -168,6 +196,20 @@ def init_db():
                 ("Chia Seeds",                               5),
                 ("Coconut Flakes (desiccated)",              5),
             ]
+            # Seed Lunch meal
+            conn.execute("INSERT INTO meals (name) VALUES (?)", ("Lunch",))
+            lunch_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+            for food_name, amount in [
+                ("Simply Wholesome Couscous Nourish Bowl", 100),
+                ("McCain Mixed Vegetables",                250),
+                ("Chicken Breast (cooked)",                125),
+            ]:
+                food = conn.execute("SELECT id FROM foods WHERE name = ?", (food_name,)).fetchone()
+                if food:
+                    conn.execute(
+                        "INSERT INTO meal_items (meal_id, food_id, amount) VALUES (?,?,?)",
+                        (lunch_id, food["id"], amount),
+                    )
             for food_name, amount in breakfast_items:
                 food = conn.execute(
                     "SELECT id FROM foods WHERE name = ?", (food_name,)
