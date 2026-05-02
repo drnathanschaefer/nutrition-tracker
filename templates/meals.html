@@ -50,9 +50,9 @@
   </div>
 
   <!-- Food items -->
-  {% if meal.items %}
+  {% if meal.foods %}
   <div class="divide-y divide-gray-50 mb-3">
-    {% for item in meal.items %}
+    {% for item in meal.foods %}
     <div class="flex items-center justify-between py-2 first:pt-0">
       <div>
         <p class="text-sm text-gray-700">{{ item.food_name }}</p>

@@ -512,7 +512,7 @@ def get_all_meals():
             totals = {k: round(sum(i[f"total_{k}"] for i in items_list), 1)
                       for k in ["calories", "protein", "fat", "sat_fat", "carbs", "fibre", "calcium", "sodium"]}
             result.append({"id": meal["id"], "name": meal["name"],
-                           "items": items_list, "totals": totals})
+                           "foods": items_list, "totals": totals})
         return result
 
 
