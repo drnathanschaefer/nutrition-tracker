@@ -36,6 +36,11 @@ INITIAL_FOODS = [
     ("Chia Seeds",                              "weight", "g",        5,  486, 16.5,30.7, 3.3, 42.1, 34.4, 631,  16,  ""),
     ("Coconut Flakes (desiccated)",             "weight", "g",        5,  660,  6.9,64.5,57.2, 23.7, 15.4,  26,  37,  "High sat fat"),
     ("Chicken Breast (cooked)",                 "weight", "g",      125,  165, 31.0, 3.6, 1.0,  0.0,  0.0,  15,  74,  ""),
+    ("Walnuts",                                 "weight", "g",       30,  654, 15.2,65.2, 6.1, 13.7,  6.7,  98,   2,  ""),
+    ("Brazil Nuts",                             "unit",   "nut",      1,   33,  0.7, 3.4, 0.8,  0.6,  0.4,   8,   0,  "1 nut ≈ 5g"),
+    ("Almonds",                                 "weight", "g",       30,  579, 21.2,49.9, 3.8, 21.6, 12.5, 264,   1,  ""),
+    ("Pecan Nuts",                              "weight", "g",       30,  691,  9.2,72.0, 6.2, 13.9,  9.6,  70,   0,  ""),
+    ("Cashews",                                 "weight", "g",       30,  553, 18.2,43.8, 7.8, 30.2,  3.3,  37,  12,  ""),
 ]
 
 
@@ -127,6 +132,24 @@ def init_db():
         for food in new_foods:
             exists = conn.execute("SELECT 1 FROM foods WHERE name = ?", (food[0],)).fetchone()
             if not exists:
+                conn.execute(
+                    """INSERT INTO foods
+                       (name, unit_type, unit_label, default_amount,
+                        calories, protein, fat, sat_fat, carbs, fibre, calcium, sodium, notes)
+                       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                    food,
+                )
+
+        # Migration: add nuts if missing
+        new_nuts = [
+            ("Walnuts",      "weight", "g",    30, 654, 15.2, 65.2,  6.1, 13.7,  6.7,  98,  2, ""),
+            ("Brazil Nuts",  "unit",   "nut",   1,  33,  0.7,  3.4,  0.8,  0.6,  0.4,   8,  0, "1 nut ≈ 5g"),
+            ("Almonds",      "weight", "g",    30, 579, 21.2, 49.9,  3.8, 21.6, 12.5, 264,  1, ""),
+            ("Pecan Nuts",   "weight", "g",    30, 691,  9.2, 72.0,  6.2, 13.9,  9.6,  70,  0, ""),
+            ("Cashews",      "weight", "g",    30, 553, 18.2, 43.8,  7.8, 30.2,  3.3,  37, 12, ""),
+        ]
+        for food in new_nuts:
+            if not conn.execute("SELECT 1 FROM foods WHERE name = ?", (food[0],)).fetchone():
                 conn.execute(
                     """INSERT INTO foods
                        (name, unit_type, unit_label, default_amount,
