@@ -192,12 +192,15 @@ def init_db():
         # Migration: rename "Lunch" to "Lunch with Couscous" if it exists
         conn.execute("UPDATE meals SET name = 'Lunch with Couscous' WHERE name = 'Lunch'")
 
+        # Migration: rename Walnuts meal
+        conn.execute("UPDATE meals SET name = 'Walnuts - 30g + Brazil Nut' WHERE name = 'Walnuts & Brazil Nut'")
+
         # Migration: set sort orders
         sort_orders = [
             ("Breakfast",                        1),
             ("Lunch with Couscous",              2),
             ("Lunch with Quinoa",                3),
-            ("Walnuts & Brazil Nut",             4),
+            ("Walnuts - 30g + Brazil Nut",             4),
             ("Almonds",                          5),
             ("Cashews",                          6),
             ("Pecan Nuts",                       7),
@@ -257,7 +260,7 @@ def init_db():
 
         # Migration: add nut snack meals if missing
         nut_meals = [
-            ("Walnuts & Brazil Nut",  [("Walnuts", 30), ("Brazil Nuts", 1)]),
+            ("Walnuts - 30g + Brazil Nut",  [("Walnuts", 30), ("Brazil Nuts", 1)]),
             ("Almonds",               [("Almonds", 30)]),
             ("Pecan Nuts",            [("Pecan Nuts", 30)]),
             ("Cashews",               [("Cashews", 30)]),
@@ -348,7 +351,7 @@ def init_db():
             ]
             # Seed nut snack meals
             for meal_name, sort_order, items in [
-                ("Walnuts & Brazil Nut",            4,  [("Walnuts", 30), ("Brazil Nuts", 1)]),
+                ("Walnuts - 30g + Brazil Nut",            4,  [("Walnuts", 30), ("Brazil Nuts", 1)]),
                 ("Almonds",                         5,  [("Almonds", 30)]),
                 ("Cashews",                         6,  [("Cashews", 30)]),
                 ("Pecan Nuts",                      7,  [("Pecan Nuts", 30)]),
