@@ -32,6 +32,8 @@ async def today(request: Request):
     totals = database.get_day_totals(today_str)
     foods = database.get_all_foods()
     meals = database.get_all_meals()
+    feedback = database.get_feedback(today_str)
+    has_api_key = bool(os.environ.get("ANTHROPIC_API_KEY"))
     return templates.TemplateResponse(request=request, name="index.html", context={
         "today": today_str,
         "today_fmt": today_fmt,
@@ -39,6 +41,8 @@ async def today(request: Request):
         "totals": totals,
         "foods": foods,
         "meals": meals,
+        "feedback": feedback,
+        "has_api_key": has_api_key,
         "protein_target": 200,
     })
 
@@ -117,6 +121,52 @@ async def add_log(
 async def delete_log(entry_id: int):
     database.delete_log_entry(entry_id)
     return RedirectResponse(url="/", status_code=303)
+
+
+@app.post("/feedback/generate")
+async def generate_feedback(log_date: str = Form(...)):
+    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    if not api_key:
+        return JSONResponse({"error": "API key not set"}, status_code=400)
+
+    existing = database.get_feedback(log_date)
+    if existing:
+        return JSONResponse({"feedback": existing})
+
+    totals = database.get_day_totals(log_date)
+    if not any(v > 0 for v in totals.values()):
+        return JSONResponse({"error": "No food logged for this day"}, status_code=400)
+
+    import anthropic
+    client = anthropic.Anthropic(api_key=api_key)
+
+    prompt = f"""You are a concise nutrition coach reviewing someone's daily food log.
+Their protein target is 200g/day.
+
+Today's totals:
+- Calories: {totals['calories']} kcal
+- Protein: {totals['protein']}g (target: 200g)
+- Carbs: {totals['carbs']}g (of which sugar: {totals['sugar']}g)
+- Fat: {totals['fat']}g (sat fat: {totals['sat_fat']}g)
+- Fibre: {totals['fibre']}g
+- Sodium: {totals['sodium']}mg
+- Calcium: {totals['calcium']}mg
+
+Give exactly 3 lines using this format (include the emoji, nothing else):
+✅ Win: [one specific positive, max 20 words]
+⚠️ Watch: [one thing to be mindful of, max 20 words]
+💡 Tomorrow: [one actionable suggestion, max 20 words]
+
+Be specific, reference actual numbers, don't be preachy."""
+
+    response = client.messages.create(
+        model="claude-sonnet-4-6",
+        max_tokens=256,
+        messages=[{"role": "user", "content": prompt}],
+    )
+    feedback = response.content[0].text.strip()
+    database.save_feedback(log_date, feedback)
+    return JSONResponse({"feedback": feedback})
 
 
 @app.post("/log/clear")

@@ -144,6 +144,13 @@ def init_db():
         if "meal_id" not in cols:
             conn.execute("ALTER TABLE log_entries ADD COLUMN meal_id INTEGER DEFAULT NULL")
         conn.execute("""
+            CREATE TABLE IF NOT EXISTS daily_feedback (
+                date TEXT PRIMARY KEY,
+                feedback TEXT NOT NULL,
+                created_at TEXT NOT NULL DEFAULT (datetime('now'))
+            )
+        """)
+        conn.execute("""
             CREATE TABLE IF NOT EXISTS meals (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
@@ -603,6 +610,22 @@ def add_meal_item(meal_id, food_id, amount):
 def remove_meal_item(item_id):
     with get_db() as conn:
         conn.execute("DELETE FROM meal_items WHERE id = ?", (item_id,))
+
+
+def get_feedback(date_str):
+    with get_db() as conn:
+        row = conn.execute(
+            "SELECT feedback FROM daily_feedback WHERE date = ?", (date_str,)
+        ).fetchone()
+    return row["feedback"] if row else None
+
+
+def save_feedback(date_str, feedback):
+    with get_db() as conn:
+        conn.execute(
+            "INSERT OR REPLACE INTO daily_feedback (date, feedback) VALUES (?, ?)",
+            (date_str, feedback),
+        )
 
 
 def log_meal(meal_id, date_str):
