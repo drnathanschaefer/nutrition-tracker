@@ -81,10 +81,16 @@ def init_db():
                 date TEXT NOT NULL,
                 food_id INTEGER NOT NULL,
                 amount REAL NOT NULL,
+                meal_id INTEGER DEFAULT NULL,
                 logged_at TEXT NOT NULL DEFAULT (datetime('now')),
-                FOREIGN KEY (food_id) REFERENCES foods(id)
+                FOREIGN KEY (food_id) REFERENCES foods(id),
+                FOREIGN KEY (meal_id) REFERENCES meals(id)
             )
         """)
+        # Migration: add meal_id column if it doesn't exist yet
+        cols = [r[1] for r in conn.execute("PRAGMA table_info(log_entries)").fetchall()]
+        if "meal_id" not in cols:
+            conn.execute("ALTER TABLE log_entries ADD COLUMN meal_id INTEGER DEFAULT NULL")
         conn.execute("""
             CREATE TABLE IF NOT EXISTS meals (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -275,12 +281,14 @@ def _compute_entry(row):
 def get_day_entries(date_str):
     with get_db() as conn:
         rows = conn.execute("""
-            SELECT le.id, le.date, le.food_id, le.amount,
+            SELECT le.id, le.date, le.food_id, le.amount, le.meal_id,
+                   COALESCE(m.name, '') AS meal_name,
                    f.name, f.unit_type, f.unit_label,
                    f.calories, f.protein, f.fat, f.sat_fat,
                    f.carbs, f.fibre, f.calcium, f.sodium
             FROM log_entries le
             JOIN foods f ON le.food_id = f.id
+            LEFT JOIN meals m ON le.meal_id = m.id
             WHERE le.date = ?
             ORDER BY le.logged_at
         """, (date_str,)).fetchall()
@@ -399,6 +407,6 @@ def log_meal(meal_id, date_str):
         ).fetchall()
         for item in items:
             conn.execute(
-                "INSERT INTO log_entries (date, food_id, amount) VALUES (?,?,?)",
-                (date_str, item["food_id"], item["amount"]),
+                "INSERT INTO log_entries (date, food_id, amount, meal_id) VALUES (?,?,?,?)",
+                (date_str, item["food_id"], item["amount"], meal_id),
             )
