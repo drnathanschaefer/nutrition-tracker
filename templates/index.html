@@ -30,7 +30,9 @@
     {% for meal in meals %}
     <div class="bg-white rounded-xl shadow-sm p-4 flex items-center justify-between gap-3">
       <div class="min-w-0">
-        <p class="text-sm font-semibold text-gray-800">{{ meal.name }}</p>
+        <p class="text-sm font-semibold text-gray-800">
+          {{ meal.name }}{% if meal.foods | length == 1 and meal.foods[0].unit_type == 'weight' %} — {{ meal.foods[0].amount | int }} g{% endif %}
+        </p>
         <p class="text-xs text-gray-400 mt-0.5">
           <span class="text-orange-500">{{ meal.totals.calories }} kcal</span> &middot;
           <span class="text-amber-600 font-medium">{{ meal.totals.protein }}g P</span> &middot;
