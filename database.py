@@ -80,6 +80,22 @@ def init_db():
                 FOREIGN KEY (food_id) REFERENCES foods(id)
             )
         """)
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS meals (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL
+            )
+        """)
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS meal_items (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                meal_id INTEGER NOT NULL,
+                food_id INTEGER NOT NULL,
+                amount REAL NOT NULL,
+                FOREIGN KEY (meal_id) REFERENCES meals(id),
+                FOREIGN KEY (food_id) REFERENCES foods(id)
+            )
+        """)
         count = conn.execute("SELECT COUNT(*) FROM foods").fetchone()[0]
         if count == 0:
             conn.executemany(
@@ -176,4 +192,67 @@ def add_food(name, unit_type, unit_label, default_amount,
 def delete_food(food_id):
     with get_db() as conn:
         conn.execute("DELETE FROM log_entries WHERE food_id = ?", (food_id,))
+        conn.execute("DELETE FROM meal_items WHERE food_id = ?", (food_id,))
         conn.execute("DELETE FROM foods WHERE id = ?", (food_id,))
+
+
+# ── Meals ──────────────────────────────────────────────────────────────────
+
+def get_all_meals():
+    with get_db() as conn:
+        meals = conn.execute("SELECT id, name FROM meals ORDER BY name").fetchall()
+        result = []
+        for meal in meals:
+            items = conn.execute("""
+                SELECT mi.id, mi.amount,
+                       f.name AS food_name, f.unit_label, f.unit_type,
+                       f.calories, f.protein, f.fat, f.sat_fat,
+                       f.carbs, f.fibre, f.calcium, f.sodium
+                FROM meal_items mi
+                JOIN foods f ON f.id = mi.food_id
+                WHERE mi.meal_id = ?
+                ORDER BY f.name
+            """, (meal["id"],)).fetchall()
+            items_list = [_compute_entry(dict(i) | {"name": i["food_name"], "amount": i["amount"]}) for i in items]
+            # sum totals for the whole meal
+            totals = {k: round(sum(i[f"total_{k}"] for i in items_list), 1)
+                      for k in ["calories", "protein", "fat", "sat_fat", "carbs", "fibre", "calcium", "sodium"]}
+            result.append({"id": meal["id"], "name": meal["name"],
+                           "items": items_list, "totals": totals})
+        return result
+
+
+def add_meal(name):
+    with get_db() as conn:
+        conn.execute("INSERT INTO meals (name) VALUES (?)", (name,))
+
+
+def delete_meal(meal_id):
+    with get_db() as conn:
+        conn.execute("DELETE FROM meal_items WHERE meal_id = ?", (meal_id,))
+        conn.execute("DELETE FROM meals WHERE id = ?", (meal_id,))
+
+
+def add_meal_item(meal_id, food_id, amount):
+    with get_db() as conn:
+        conn.execute(
+            "INSERT INTO meal_items (meal_id, food_id, amount) VALUES (?,?,?)",
+            (meal_id, food_id, amount),
+        )
+
+
+def remove_meal_item(item_id):
+    with get_db() as conn:
+        conn.execute("DELETE FROM meal_items WHERE id = ?", (item_id,))
+
+
+def log_meal(meal_id, date_str):
+    with get_db() as conn:
+        items = conn.execute(
+            "SELECT food_id, amount FROM meal_items WHERE meal_id = ?", (meal_id,)
+        ).fetchall()
+        for item in items:
+            conn.execute(
+                "INSERT INTO log_entries (date, food_id, amount) VALUES (?,?,?)",
+                (date_str, item["food_id"], item["amount"]),
+            )

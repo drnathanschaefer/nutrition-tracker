@@ -13,6 +13,7 @@
       <span class="font-bold text-green-700 text-base">Nutrition Tracker</span>
       <div class="flex gap-5 text-sm font-medium">
         <a href="/"        class="{% if request.url.path == '/' %}text-green-700{% else %}text-gray-500 hover:text-green-700{% endif %}">Today</a>
+        <a href="/meals"   class="{% if request.url.path == '/meals' %}text-green-700{% else %}text-gray-500 hover:text-green-700{% endif %}">Meals</a>
         <a href="/history" class="{% if request.url.path == '/history' %}text-green-700{% else %}text-gray-500 hover:text-green-700{% endif %}">History</a>
         <a href="/foods"   class="{% if request.url.path == '/foods' %}text-green-700{% else %}text-gray-500 hover:text-green-700{% endif %}">Foods</a>
       </div>

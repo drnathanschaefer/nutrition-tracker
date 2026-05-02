@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="flex items-center justify-between mb-4">
+  <h1 class="text-lg font-bold text-gray-800">Meals</h1>
+  <button onclick="document.getElementById('new-meal-form').classList.toggle('hidden')"
+          class="text-sm bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium">
+    + New Meal
+  </button>
+</div>
+
+<!-- New meal form -->
+<div id="new-meal-form" class="hidden bg-white rounded-2xl shadow-sm p-5 mb-4">
+  <h2 class="font-semibold text-gray-700 mb-3">Create Meal</h2>
+  <form action="/meals/add" method="post" class="flex gap-2">
+    <input type="text" name="name" placeholder="e.g. Breakfast" required
+           class="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400">
+    <button type="submit"
+            class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-semibold">
+      Create
+    </button>
+  </form>
+</div>
+
+{% if not meals %}
+<div class="text-center py-14 text-gray-400">
+  <p class="text-5xl mb-3">🍳</p>
+  <p class="text-sm">No meals yet — create one above.</p>
+</div>
+{% endif %}
+
+<!-- Meal cards -->
+<div class="space-y-4">
+{% for meal in meals %}
+<div class="bg-white rounded-2xl shadow-sm p-5">
+
+  <!-- Meal header -->
+  <div class="flex items-center justify-between mb-3">
+    <h2 class="font-bold text-gray-800">{{ meal.name }}</h2>
+    <div class="flex items-center gap-3">
+      <span class="text-xs text-gray-400">
+        {{ meal.totals.calories }} kcal &middot;
+        <span class="text-amber-600 font-medium">{{ meal.totals.protein }}g P</span>
+      </span>
+      <form action="/meals/delete/{{ meal.id }}" method="post"
+            onsubmit="return confirm('Delete {{ meal.name }}?')">
+        <button type="submit" class="text-xs text-gray-300 hover:text-red-400 px-1">Delete</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Food items -->
+  {% if meal.items %}
+  <div class="divide-y divide-gray-50 mb-3">
+    {% for item in meal.items %}
+    <div class="flex items-center justify-between py-2 first:pt-0">
+      <div>
+        <p class="text-sm text-gray-700">{{ item.food_name }}</p>
+        <p class="text-xs text-gray-400">
+          {{ item.amount }}{{ item.unit_label }} &middot;
+          {{ item.total_calories }} kcal &middot;
+          <span class="text-amber-600">{{ item.total_protein }}g P</span>
+        </p>
+      </div>
+      <form action="/meals/{{ meal.id }}/remove-item/{{ item.id }}" method="post">
+        <button type="submit" class="text-gray-300 hover:text-red-400 text-lg leading-none px-1">&times;</button>
+      </form>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="text-xs text-gray-400 mb-3">No foods yet — add some below.</p>
+  {% endif %}
+
+  <!-- Add food to meal -->
+  <details class="group">
+    <summary class="text-xs font-medium text-green-700 cursor-pointer list-none flex items-center gap-1">
+      <span class="text-base leading-none">+</span> Add food to this meal
+    </summary>
+    <form action="/meals/{{ meal.id }}/add-item" method="post" class="mt-3 flex flex-col gap-2">
+      <select name="food_id" id="meal-food-{{ meal.id }}"
+              onchange="updateMealAmount(this, {{ meal.id }})"
+              class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-400">
+        <option value="">Select a food…</option>
+        {% for food in foods | sort(attribute='name') %}
+        <option value="{{ food.id }}"
+                data-default="{{ food.default_amount }}"
+                data-unit="{{ food.unit_label }}">{{ food.name }}</option>
+        {% endfor %}
+      </select>
+      <div class="flex gap-2">
+        <div class="relative flex-1">
+          <input type="number" name="amount" id="meal-amount-{{ meal.id }}"
+                 value="100" min="0.1" step="any"
+                 class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm pr-10 focus:outline-none focus:ring-2 focus:ring-green-400">
+          <span id="meal-unit-{{ meal.id }}" class="absolute right-3 top-2.5 text-sm text-gray-400">g</span>
+        </div>
+        <button type="submit"
+                class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-semibold">
+          Add
+        </button>
+      </div>
+    </form>
+  </details>
+
+</div>
+{% endfor %}
+</div>
+
+<script>
+const mealFoodMeta = {
+  {% for food in foods %}
+  {{ food.id }}: { def: {{ food.default_amount }}, unit: "{{ food.unit_label }}" },
+  {% endfor %}
+};
+function updateMealAmount(sel, mealId) {
+  const meta = mealFoodMeta[sel.value];
+  const inp = document.getElementById('meal-amount-' + mealId);
+  const lbl = document.getElementById('meal-unit-' + mealId);
+  if (meta) { inp.value = meta.def; lbl.textContent = meta.unit; }
+  else       { inp.value = 100;     lbl.textContent = 'g'; }
+}
+</script>
+
+{% endblock %}

@@ -28,12 +28,14 @@ async def today(request: Request):
     entries = database.get_day_entries(today_str)
     totals = database.get_day_totals(today_str)
     foods = database.get_all_foods()
+    meals = database.get_all_meals()
     return templates.TemplateResponse(request=request, name="index.html", context={
         "today": today_str,
         "today_fmt": today_fmt,
         "entries": entries,
         "totals": totals,
         "foods": foods,
+        "meals": meals,
         "protein_target": 200,
     })
 
@@ -45,6 +47,47 @@ async def history_page(request: Request):
         "days": days,
         "protein_target": 200,
     })
+
+
+@app.get("/meals", response_class=HTMLResponse)
+async def meals_page(request: Request):
+    meals = database.get_all_meals()
+    foods = database.get_all_foods()
+    return templates.TemplateResponse(request=request, name="meals.html", context={
+        "meals": meals,
+        "foods": foods,
+    })
+
+
+@app.post("/meals/add")
+async def add_meal(name: str = Form(...)):
+    database.add_meal(name)
+    return RedirectResponse(url="/meals", status_code=303)
+
+
+@app.post("/meals/delete/{meal_id}")
+async def delete_meal(meal_id: int):
+    database.delete_meal(meal_id)
+    return RedirectResponse(url="/meals", status_code=303)
+
+
+@app.post("/meals/{meal_id}/add-item")
+async def add_meal_item(meal_id: int, food_id: int = Form(...), amount: float = Form(...)):
+    database.add_meal_item(meal_id, food_id, amount)
+    return RedirectResponse(url="/meals", status_code=303)
+
+
+@app.post("/meals/{meal_id}/remove-item/{item_id}")
+async def remove_meal_item(meal_id: int, item_id: int):
+    database.remove_meal_item(item_id)
+    return RedirectResponse(url="/meals", status_code=303)
+
+
+@app.post("/meals/{meal_id}/log")
+async def log_meal(meal_id: int):
+    today_str = date.today().isoformat()
+    database.log_meal(meal_id, today_str)
+    return RedirectResponse(url="/", status_code=303)
 
 
 @app.get("/foods", response_class=HTMLResponse)
