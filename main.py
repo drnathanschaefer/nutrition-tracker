@@ -2,6 +2,7 @@ import os
 import json
 import base64
 from datetime import date
+from database import today_local
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request, Form, UploadFile, File, HTTPException
@@ -21,13 +22,13 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
-templates.env.globals["current_date"] = lambda: date.today().strftime("%A, %-d %B %Y")
+templates.env.globals["current_date"] = lambda: today_local().strftime("%A, %-d %B %Y")
 
 
 @app.get("/", response_class=HTMLResponse)
 async def today(request: Request):
-    today_str = date.today().isoformat()
-    today_fmt = date.today().strftime("%A, %d %B %Y")
+    today_str = today_local().isoformat()
+    today_fmt = today_local().strftime("%A, %d %B %Y")
     entries = database.get_day_entries(today_str)
     totals = database.get_day_totals(today_str)
     foods = database.get_all_foods()
@@ -92,7 +93,7 @@ async def remove_meal_item(meal_id: int, item_id: int):
 
 @app.post("/meals/{meal_id}/log")
 async def log_meal(meal_id: int):
-    today_str = date.today().isoformat()
+    today_str = today_local().isoformat()
     database.log_meal(meal_id, today_str)
     return RedirectResponse(url="/", status_code=303)
 

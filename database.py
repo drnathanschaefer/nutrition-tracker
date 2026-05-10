@@ -2,6 +2,14 @@ import sqlite3
 import os
 from contextlib import contextmanager
 from datetime import date, timedelta
+from zoneinfo import ZoneInfo
+
+BRISBANE = ZoneInfo("Australia/Brisbane")
+
+
+def today_local():
+    from datetime import datetime
+    return datetime.now(BRISBANE).date()
 
 DB_PATH = os.environ.get("DB_PATH", "nutrition.db")
 
@@ -514,7 +522,7 @@ def get_day_totals(date_str):
 
 def get_history(days=30):
     result = []
-    today = date.today()
+    today = today_local()
     for i in range(days):
         d = (today - timedelta(days=i)).isoformat()
         totals = get_day_totals(d)
