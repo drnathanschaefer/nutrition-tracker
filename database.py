@@ -35,10 +35,10 @@ INITIAL_FOODS = [
     ("Simply Wholesome Quinoa Nourish Bowl",    "weight", "g",     220,  132,  4.7, 3.6, 0.5, 18.0,  3.0,  4.2,   0, 320,  "Full pack = 220g"),
     ("Mini Rice Cakes",                          "unit",   "pack",    1,   70,  0.9, 3.2, 2.9,  9.4,  5.5,  0.2,   0,  11,  "1 pack = 14g. High sat fat from white choc coating."),
     ("White Choc Protein Bar",                  "unit",   "bar",     1,  143, 21.6, 3.1, 0.7,  0.4,  0.1, 26.4,   0,  52,  "1 bar = 60g"),
-    ("LMNT Watermelon Salt Electrolyte",        "unit",   "sachet",  1,    5,  0.0, 0.0, 0.0,  1.0,  1.0,  0.0,   0, 1000, "1 sachet = 6g. Very high sodium."),
+    ("LMNT - Watermelon",                        "unit",   "sachet",  1,    5,  0.0, 0.0, 0.0,  1.0,  1.0,  0.0,   0, 1000, "1 sachet = 6g. Very high sodium."),
     ("Energy Gel",                               "unit",   "sachet",  1,  110,  0.0, 0.0, 0.0, 27.0, 27.0,  0.0,   0,   0,  "1 sachet = 30ml"),
-    ("Lemon + Salt Gel",                        "unit",   "sachet",  1,  104,  0.0, 0.0, 0.0, 26.8, 26.8,  0.0,   0, 105,  "1 sachet = 32ml"),
-    ("Nectar Sport Energy Gel (Stim)",          "unit",   "sachet",  1,   95,  0.1, 0.0, 0.0, 23.4, 20.0,  0.0,   0,   4,  "Contains 100mg caffeine per sachet"),
+    ("Energy Gel - Lemon",                       "unit",   "sachet",  1,  104,  0.0, 0.0, 0.0, 26.8, 26.8,  0.0,   0, 105,  "1 sachet = 32ml"),
+    ("Gel - Caffeine",                           "unit",   "sachet",  1,   95,  0.1, 0.0, 0.0, 23.4, 20.0,  0.0,   0,   4,  "Contains 100mg caffeine per sachet"),
     ("Hemp Seeds (hulled)",                     "weight", "g",        5,  553, 31.6,48.7, 4.6,  8.7,  1.5,  4.0,  70,   5,  ""),
     ("Flax Seeds",                              "weight", "g",        5,  534, 18.3,42.2, 3.7, 28.9,  1.6, 27.3, 255,  30,  ""),
     ("Chia Seeds",                              "weight", "g",        5,  486, 16.5,30.7, 3.3, 42.1,  0.0, 34.4, 631,  16,  ""),
@@ -133,10 +133,10 @@ def init_db():
                 "Simply Wholesome Quinoa Nourish Bowl": 3.0,
                 "Mini Rice Cakes": 5.5,
                 "White Choc Protein Bar": 0.1,
-                "LMNT Watermelon Salt Electrolyte": 1.0,
+                "LMNT - Watermelon": 1.0,
                 "Energy Gel": 27.0,
-                "Lemon + Salt Gel": 26.8,
-                "Nectar Sport Energy Gel (Stim)": 20.0,
+                "Energy Gel - Lemon": 26.8,
+                "Gel - Caffeine": 20.0,
                 "Hemp Seeds (hulled)": 1.5,
                 "Flax Seeds": 1.6,
                 "Chia Seeds": 0.0,
@@ -180,6 +180,10 @@ def init_db():
             ("Kellogg's All-Bran Original",             "All Bran"),
             ("Table of Plenty Mini Rice Cakes",         "Mini Rice Cakes"),
             ("The Kimchi Company Vegan Kimchi",         "Kimchi"),
+            ("Lemon + Salt Gel",                        "Energy Gel - Lemon"),
+            ("Maple Movement Lemon + Salt Gel",         "Energy Gel - Lemon"),
+            ("LMNT Watermelon Salt Electrolyte",        "LMNT - Watermelon"),
+            ("Nectar Sport Energy Gel (Stim)",          "Gel - Caffeine"),
         ]
         for old_name, new_name in food_renames:
             conn.execute("UPDATE foods SET name = ? WHERE name = ?", (new_name, old_name))
@@ -305,6 +309,16 @@ def init_db():
         # Migration: rename "Lunch" to "Lunch with Couscous" if it exists
         conn.execute("UPDATE meals SET name = 'Lunch with Couscous' WHERE name = 'Lunch'")
 
+        # Migration: rename gel/electrolyte meals
+        meal_renames = [
+            ("Maple Movement Lemon + Salt Gel", "Energy Gel - Lemon"),
+            ("LMNT",                            "LMNT - Watermelon"),
+            ("Nectar Sport Gel",                "Gel - Caffeine"),
+            ("Maple Movement Original Gel",     "Energy Gel"),
+        ]
+        for old_name, new_name in meal_renames:
+            conn.execute("UPDATE meals SET name = ? WHERE name = ?", (new_name, old_name))
+
         # Migration: rename Walnuts meal
         conn.execute("UPDATE meals SET name = 'Walnuts - 30g + Brazil Nut' WHERE name = 'Walnuts & Brazil Nut'")
 
@@ -318,10 +332,10 @@ def init_db():
             ("Cashews",                          6),
             ("Pecan Nuts",                       7),
             ("Fibre Boost Protein Bar",          8),
-            ("LMNT",                             9),
-            ("Maple Movement Original Gel",     10),
-            ("Maple Movement Lemon + Salt Gel", 11),
-            ("Nectar Sport Gel",                12),
+            ("LMNT - Watermelon",                9),
+            ("Energy Gel",                      10),
+            ("Energy Gel - Lemon",              11),
+            ("Gel - Caffeine",                  12),
             ("WPC Cacao",                       13),
             ("WPI Salted Caramel",              14),
             ("Kimchi",                          15),
@@ -351,10 +365,10 @@ def init_db():
         # Migration: add post-pecan meals if missing
         extra_meals = [
             ("Fibre Boost Protein Bar",            8,  [("White Choc Protein Bar",                  1)]),
-            ("LMNT",                               9,  [("LMNT Watermelon Salt Electrolyte",         1)]),
-            ("Maple Movement Original Gel",       10,  [("Energy Gel",                              1)]),
-            ("Maple Movement Lemon + Salt Gel",   11,  [("Lemon + Salt Gel",                        1)]),
-            ("Nectar Sport Gel",                  12,  [("Nectar Sport Energy Gel (Stim)",           1)]),
+            ("LMNT - Watermelon",                  9,  [("LMNT - Watermelon",                       1)]),
+            ("Energy Gel",                        10,  [("Energy Gel",                              1)]),
+            ("Energy Gel - Lemon",                11,  [("Energy Gel - Lemon",                      1)]),
+            ("Gel - Caffeine",                    12,  [("Gel - Caffeine",                          1)]),
             ("WPC Cacao",                         13,  [("WPC Organic Cacao",                        50)]),
             ("WPI Salted Caramel",                 14,  [("WPI Salted Caramel",                       50)]),
             ("Kimchi",                            15,  [("Kimchi",                                  30)]),
@@ -469,10 +483,10 @@ def init_db():
                 ("Cashews",                         6,  [("Cashews", 30)]),
                 ("Pecan Nuts",                      7,  [("Pecan Nuts", 30)]),
                 ("Fibre Boost Protein Bar",         8,  [("White Choc Protein Bar",                  1)]),
-                ("LMNT",                            9,  [("LMNT Watermelon Salt Electrolyte",         1)]),
-                ("Maple Movement Original Gel",    10,  [("Energy Gel",                              1)]),
-                ("Maple Movement Lemon + Salt Gel",11,  [("Lemon + Salt Gel",                        1)]),
-                ("Nectar Sport Gel",               12,  [("Nectar Sport Energy Gel (Stim)",           1)]),
+                ("LMNT - Watermelon",               9,  [("LMNT - Watermelon",                       1)]),
+                ("Energy Gel",                    10,  [("Energy Gel",                              1)]),
+                ("Energy Gel - Lemon",            11,  [("Energy Gel - Lemon",                      1)]),
+                ("Gel - Caffeine",                12,  [("Gel - Caffeine",                          1)]),
                 ("WPC Cacao",                      13,  [("WPC Organic Cacao",                        50)]),
                 ("WPI Salted Caramel",             14,  [("WPI Salted Caramel",                       50)]),
                 ("Kimchi",                         15,  [("Kimchi",                                  30)]),
