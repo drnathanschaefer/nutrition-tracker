@@ -80,7 +80,7 @@
                value="{{ food.default_amount }}" min="0.1" step="any"
                class="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-sm text-right pr-1 focus:outline-none focus:ring-2 focus:ring-green-400">
       </div>
-      <span class="text-xs text-gray-400 w-14 flex-shrink-0">{{ food.unit_label }}</span>
+      <span class="text-xs text-gray-400 w-6 flex-shrink-0">{{ food.unit_label if food.unit_label != 'sachet' else '' }}</span>
       <button type="button" onclick="addFood({{ food.id }})"
               class="flex-shrink-0 w-10 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs font-bold">
         +
