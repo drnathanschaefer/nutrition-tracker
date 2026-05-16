@@ -18,16 +18,16 @@ DB_PATH = os.environ.get("DB_PATH", "nutrition.db")
 #          calories, protein, fat, sat_fat, carbs, sugar, fibre, calcium, sodium, notes
 INITIAL_FOODS = [
     ("Macro Organic Rolled Oats",               "weight", "g",      80,  377, 12.5, 9.0, 1.5, 55.5,  1.1, 11.0,   0,   5,  ""),
-    ("Professional Whey WPC Natural",           "weight", "g",      30,  397, 78.0, 5.1, 3.2,  8.7,  3.5,  0.0,   0, 170,  ""),
-    ("Professional Whey WPC Organic Cacao",     "weight", "g",      30,  396, 71.9, 6.5, 3.9, 10.1,  5.0,  0.0,   0, 154,  ""),
-    ("Professional Whey NZ WPI Salted Caramel", "weight", "g",      30,  373, 86.1, 0.9, 0.6,  3.4,  3.0,  0.0,   0, 315,  ""),
+    ("WPC Natural",                             "weight", "g",      30,  397, 78.0, 5.1, 3.2,  8.7,  3.5,  0.0,   0, 170,  ""),
+    ("WPC Organic Cacao",                       "weight", "g",      30,  396, 71.9, 6.5, 3.9, 10.1,  5.0,  0.0,   0, 154,  ""),
+    ("WPI Salted Caramel",                      "weight", "g",      30,  373, 86.1, 0.9, 0.6,  3.4,  3.0,  0.0,   0, 315,  ""),
     ("Kellogg's All-Bran Original",             "weight", "g",      45,  339, 14.1, 4.6, 0.9, 46.0, 18.0, 28.0,   0, 330,  ""),
     ("Ocean Spray Craisins (50% Less Sugar)",   "weight", "g",      40,  287,  0.3, 0.7, 0.1, 58.0, 43.0, 25.0,   0,   6,  ""),
     ("Devondale Extra Light Skim Milk",         "volume", "ml",    250,   34,  3.2, 0.1, 0.1,  4.9,  5.0,  0.0, 120,  45,  ""),
     ("Macro Organic Full Cream Milk",           "volume", "ml",    250,   63,  3.3, 3.4, 2.2,  4.8,  4.8,  0.0, 117,  44,  ""),
     ("Farmers Union Greek Style Yogurt",        "weight", "g",     130,   75,  5.2, 3.3, 2.1,  6.2,  6.2,  0.0, 196,  55,  ""),
-    ("Creative Gourmet Frozen Banana Chunks",   "weight", "g",     100,   85,  0.8, 0.0, 0.0, 20.5, 12.2,  1.5,   0,   4,  ""),
-    ("Creative Gourmet Frozen Mango Chunks",    "weight", "g",     100,   62,  0.8, 0.3, 0.1, 13.1, 12.5,  1.7,   0,   5,  ""),
+    ("Frozen Banana Chunks",                    "weight", "g",     100,   85,  0.8, 0.0, 0.0, 20.5, 12.2,  1.5,   0,   4,  ""),
+    ("Frozen Mango Chunks",                     "weight", "g",     100,   62,  0.8, 0.3, 0.1, 13.1, 12.5,  1.7,   0,   5,  ""),
     ("Honest to Goodness Psyllium Husks",       "weight", "g",      10,  183,  3.0, 0.7, 0.1,  1.3,  0.0, 71.0,   0, 120,  ""),
     ("The Kimchi Company Vegan Kimchi",         "weight", "g",     100,   33,  2.1, 0.3, 0.0,  5.5,  2.0,  0.0,   0, 870,  "High sodium content"),
     ("McCain Mixed Vegetables",                 "weight", "g",     150,   80,  3.1, 1.0, 0.2, 12.5,  4.5,  4.0,   0,  35,  ""),
@@ -152,6 +152,35 @@ def init_db():
             }
             for name, sugar in sugar_values.items():
                 conn.execute("UPDATE foods SET sugar = ? WHERE name = ?", (sugar, name))
+
+        # Migration: add hidden column to foods if missing
+        food_cols = [r[1] for r in conn.execute("PRAGMA table_info(foods)").fetchall()]
+        if "hidden" not in food_cols:
+            conn.execute("ALTER TABLE foods ADD COLUMN hidden INTEGER NOT NULL DEFAULT 0")
+
+        # Migration: rename verbose food names
+        food_renames = [
+            ("Creative Gourmet Frozen Banana Chunks",  "Frozen Banana Chunks"),
+            ("Creative Gourmet Frozen Mango Chunks",   "Frozen Mango Chunks"),
+            ("Professional Whey WPC Natural",           "WPC Natural"),
+            ("Professional Whey WPC Organic Cacao",     "WPC Organic Cacao"),
+            ("Professional Whey NZ WPI Salted Caramel", "WPI Salted Caramel"),
+        ]
+        for old_name, new_name in food_renames:
+            conn.execute("UPDATE foods SET name = ? WHERE name = ?", (new_name, old_name))
+
+        # Migration: hide meal-only foods from Log a Food list
+        meal_only_foods = [
+            "Simply Wholesome Couscous Nourish Bowl",
+            "Simply Wholesome Quinoa Nourish Bowl",
+            "Chia Seeds",
+            "Coconut Flakes (desiccated)",
+            "Flax Seeds",
+            "Hemp Seeds (hulled)",
+            "Honest to Goodness Psyllium Husks",
+        ]
+        for name in meal_only_foods:
+            conn.execute("UPDATE foods SET hidden = 1 WHERE name = ?", (name,))
 
         # Migration: add meal_id column if it doesn't exist yet
         cols = [r[1] for r in conn.execute("PRAGMA table_info(log_entries)").fetchall()]
@@ -308,8 +337,8 @@ def init_db():
             ("Maple Movement Original Gel",       10,  [("Maple Movement Energy Gel (Original)",     1)]),
             ("Maple Movement Lemon + Salt Gel",   11,  [("Maple Movement Lemon + Salt Gel",          1)]),
             ("Nectar Sport Gel",                  12,  [("Nectar Sport Energy Gel (Stim)",           1)]),
-            ("WPC Cacao",                         13,  [("Professional Whey WPC Organic Cacao",     50)]),
-            ("WPI Salted Caramel",                 14,  [("Professional Whey NZ WPI Salted Caramel", 50)]),
+            ("WPC Cacao",                         13,  [("WPC Organic Cacao",                        50)]),
+            ("WPI Salted Caramel",                 14,  [("WPI Salted Caramel",                       50)]),
             ("Kimchi",                            15,  [("The Kimchi Company Vegan Kimchi",         30)]),
         ]
         for meal_name, order, items in extra_meals:
@@ -402,10 +431,10 @@ def init_db():
             conn.execute("INSERT INTO meals (name, sort_order) VALUES (?, ?)", ("Breakfast", 1))
             meal_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
             breakfast_items = [
-                ("Professional Whey WPC Natural",           50),
+                ("WPC Natural",                             50),
                 ("Macro Organic Rolled Oats",               100),
-                ("Creative Gourmet Frozen Banana Chunks",   100),
-                ("Creative Gourmet Frozen Mango Chunks",    100),
+                ("Frozen Banana Chunks",                    100),
+                ("Frozen Mango Chunks",                     100),
                 ("Devondale Extra Light Skim Milk",         250),
                 ("Honest to Goodness Psyllium Husks",       12),
                 ("Kellogg's All-Bran Original",             30),
@@ -426,8 +455,8 @@ def init_db():
                 ("Maple Movement Original Gel",    10,  [("Maple Movement Energy Gel (Original)",     1)]),
                 ("Maple Movement Lemon + Salt Gel",11,  [("Maple Movement Lemon + Salt Gel",          1)]),
                 ("Nectar Sport Gel",               12,  [("Nectar Sport Energy Gel (Stim)",           1)]),
-                ("WPC Cacao",                      13,  [("Professional Whey WPC Organic Cacao",     50)]),
-                ("WPI Salted Caramel",             14,  [("Professional Whey NZ WPI Salted Caramel", 50)]),
+                ("WPC Cacao",                      13,  [("WPC Organic Cacao",                        50)]),
+                ("WPI Salted Caramel",             14,  [("WPI Salted Caramel",                       50)]),
                 ("Kimchi",                         15,  [("The Kimchi Company Vegan Kimchi",         30)]),
             ]:
                 conn.execute("INSERT INTO meals (name, sort_order) VALUES (?, ?)", (meal_name, sort_order))

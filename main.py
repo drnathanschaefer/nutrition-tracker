@@ -31,7 +31,8 @@ async def today(request: Request):
     today_fmt = today_local().strftime("%A, %d %B %Y")
     entries = database.get_day_entries(today_str)
     totals = database.get_day_totals(today_str)
-    foods = database.get_all_foods()
+    all_foods = database.get_all_foods()
+    foods = [f for f in all_foods if not f.get("hidden", 0)]
     meals = database.get_all_meals()
     feedback = database.get_feedback(today_str)
     has_api_key = bool(os.environ.get("ANTHROPIC_API_KEY"))
