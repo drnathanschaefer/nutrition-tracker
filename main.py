@@ -36,14 +36,18 @@ async def today(request: Request):
     feedback = database.get_feedback(today_str)
     has_api_key = bool(os.environ.get("ANTHROPIC_API_KEY"))
 
-    # Build per-slot data
+    # Build per-slot data (5 slots)
     nutrient_keys = ["calories", "protein", "fat", "sat_fat", "carbs", "sugar", "fibre", "calcium", "sodium"]
     slots = {}
-    for slot in range(1, 5):
+    for slot in range(1, 6):
         slot_entries = [e for e in entries if e.get("meal_slot", 1) == slot]
         if slot_entries:
             slot_totals = {k: round(sum(e[f"total_{k}"] for e in slot_entries), 1) for k in nutrient_keys}
             slots[slot] = {"entries": slot_entries, "totals": slot_totals}
+
+    # Only show the 3 main meals in the quick-log section
+    MAIN_MEALS = {"Breakfast", "Lunch with Couscous", "Lunch with Quinoa"}
+    log_meals = [m for m in meals if m["name"] in MAIN_MEALS]
 
     return templates.TemplateResponse(request=request, name="index.html", context={
         "today": today_str,
@@ -53,6 +57,7 @@ async def today(request: Request):
         "slots": slots,
         "foods": foods,
         "meals": meals,
+        "log_meals": log_meals,
         "feedback": feedback,
         "has_api_key": has_api_key,
         "protein_target": 200,

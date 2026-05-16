@@ -23,29 +23,25 @@
   {% endfor %}
 </div>
 
-<!-- Quick log meals -->
-{% if meals %}
+<!-- Log a Meal (Breakfast + Lunches only) -->
+{% if log_meals %}
 <div class="mb-4">
   <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2 px-1">Log a Meal</h2>
   <div class="space-y-2">
-    {% for meal in meals %}
+    {% for meal in log_meals %}
     <div class="bg-white rounded-xl shadow-sm p-4">
-      <div class="flex items-start justify-between gap-2 mb-2">
-        <div class="min-w-0">
-          <p class="text-sm font-semibold text-gray-800">
-            {{ meal.name }}{% if meal.foods | length == 1 and meal.foods[0].unit_type == 'weight' %} — {{ meal.foods[0].amount | int }} g{% endif %}
-          </p>
-          <p class="text-xs text-gray-400 mt-0.5">
-            <span class="text-orange-500">{{ meal.totals.calories }} kcal</span> &middot;
-            <span class="text-amber-600 font-medium">{{ meal.totals.protein }}g P</span> &middot;
-            {{ meal.totals.carbs }}g C &middot; {{ meal.totals.fat }}g F
-          </p>
-        </div>
+      <div class="mb-2">
+        <p class="text-sm font-semibold text-gray-800">{{ meal.name }}</p>
+        <p class="text-xs text-gray-400 mt-0.5">
+          <span class="text-orange-500">{{ meal.totals.calories }} kcal</span> &middot;
+          <span class="text-amber-600 font-medium">{{ meal.totals.protein }}g P</span> &middot;
+          {{ meal.totals.carbs }}g C &middot; {{ meal.totals.fat }}g F
+        </p>
       </div>
-      <form action="/meals/{{ meal.id }}/log" method="post" class="flex gap-1.5">
-        {% for s in [1,2,3,4] %}
+      <form action="/meals/{{ meal.id }}/log" method="post" class="grid grid-cols-5 gap-1.5">
+        {% for s in [1,2,3,4,5] %}
         <button type="submit" name="meal_slot" value="{{ s }}"
-                class="flex-1 py-1.5 bg-gray-100 hover:bg-green-600 hover:text-white text-gray-600 rounded-lg text-xs font-semibold transition-colors">
+                class="py-1.5 bg-gray-100 hover:bg-green-600 hover:text-white text-gray-600 rounded-lg text-xs font-semibold transition-colors">
           M{{ s }}
         </button>
         {% endfor %}
@@ -56,49 +52,42 @@
 </div>
 {% endif %}
 
-<!-- Add food -->
+<!-- Log a Food -->
 <div class="bg-white rounded-2xl shadow-sm p-5 mb-4">
-  <h2 class="font-semibold text-gray-700 mb-3">Add Food</h2>
-  <form action="/log/add" method="post" class="space-y-3">
-    <input type="hidden" name="log_date" value="{{ today }}">
-    <select name="food_id" id="food-select" onchange="updateAmount(this)"
-            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-400">
-      <option value="">Select a food…</option>
-      {% for food in foods | sort(attribute='name') %}
-      <option value="{{ food.id }}"
-              data-default="{{ food.default_amount }}"
-              data-unit="{{ food.unit_label }}"
-              data-type="{{ food.unit_type }}">{{ food.name }}</option>
+  <h2 class="font-semibold text-gray-700 mb-3">Log a Food</h2>
+
+  <!-- Persistent slot selector -->
+  <div class="mb-4">
+    <p class="text-xs font-medium text-gray-500 mb-2">Add to</p>
+    <div class="grid grid-cols-5 gap-1.5">
+      {% for s in [1,2,3,4,5] %}
+      <button type="button" onclick="selectSlot({{ s }})" id="slot-btn-{{ s }}"
+              class="py-1.5 rounded-lg text-xs font-semibold border transition-colors
+                     {% if s == 1 %}bg-green-600 text-white border-green-600{% else %}bg-gray-100 text-gray-500 border-gray-200{% endif %}">
+        Meal {{ s }}
+      </button>
       {% endfor %}
-    </select>
-    <div class="flex gap-2 items-center">
-      <div class="relative flex-1">
-        <input type="number" name="amount" id="amount-input"
-               value="100" min="0.1" step="any"
-               class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm pr-10 focus:outline-none focus:ring-2 focus:ring-green-400">
-        <span id="unit-label" class="absolute right-3 top-2.5 text-sm text-gray-400">g</span>
-      </div>
     </div>
-    <div>
-      <p class="text-xs font-medium text-gray-500 mb-1.5">Add to meal</p>
-      <div class="grid grid-cols-4 gap-1.5">
-        {% for s in [1,2,3,4] %}
-        <label class="cursor-pointer">
-          <input type="radio" name="meal_slot" value="{{ s }}" class="sr-only peer" {% if s == 1 %}checked{% endif %}>
-          <div class="text-center py-2 rounded-lg text-sm font-semibold border border-gray-200
-                      peer-checked:bg-green-600 peer-checked:text-white peer-checked:border-green-600
-                      text-gray-500 hover:border-green-400 transition-colors">
-            Meal {{ s }}
-          </div>
-        </label>
-        {% endfor %}
+  </div>
+
+  <!-- Food list -->
+  <div class="divide-y divide-gray-50">
+    {% for food in foods | sort(attribute='name') %}
+    <div class="flex items-center gap-2 py-2.5 first:pt-0">
+      <p class="text-sm text-gray-700 flex-1 min-w-0 truncate">{{ food.name }}</p>
+      <div class="relative w-20 flex-shrink-0">
+        <input type="number" id="amt-{{ food.id }}"
+               value="{{ food.default_amount }}" min="0.1" step="any"
+               class="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-sm text-right pr-1 focus:outline-none focus:ring-2 focus:ring-green-400">
       </div>
+      <span class="text-xs text-gray-400 w-6 flex-shrink-0">{{ food.unit_label }}</span>
+      <button type="button" onclick="addFood({{ food.id }})"
+              class="flex-shrink-0 w-10 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs font-bold">
+        +
+      </button>
     </div>
-    <button type="submit"
-            class="w-full py-2.5 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white rounded-lg text-sm font-semibold">
-      Add
-    </button>
-  </form>
+    {% endfor %}
+  </div>
 </div>
 
 <!-- Today's log by slot -->
@@ -115,13 +104,12 @@
     </form>
   </div>
 
-  {% for slot_num in [1,2,3,4] %}
+  {% for slot_num in [1,2,3,4,5] %}
   {% if slot_num in slots %}
   {% set slot = slots[slot_num] %}
   <div class="bg-white rounded-2xl shadow-sm p-5">
     <p class="text-xs font-bold text-green-700 uppercase tracking-wide mb-3">Meal {{ slot_num }}</p>
 
-    <!-- Food entries -->
     <div class="divide-y divide-gray-50 mb-4">
       {% for e in slot.entries %}
       <div class="flex items-center justify-between py-2.5 first:pt-0">
@@ -202,6 +190,39 @@
 {% endif %}
 
 <script>
+let currentSlot = 1;
+
+function selectSlot(s) {
+  currentSlot = s;
+  for (let i = 1; i <= 5; i++) {
+    const btn = document.getElementById('slot-btn-' + i);
+    if (i === s) {
+      btn.classList.remove('bg-gray-100','text-gray-500','border-gray-200');
+      btn.classList.add('bg-green-600','text-white','border-green-600');
+    } else {
+      btn.classList.remove('bg-green-600','text-white','border-green-600');
+      btn.classList.add('bg-gray-100','text-gray-500','border-gray-200');
+    }
+  }
+}
+
+function addFood(foodId) {
+  const amount = document.getElementById('amt-' + foodId).value;
+  if (!amount || amount <= 0) return;
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = '/log/add';
+  for (const [k, v] of Object.entries({
+    log_date: '{{ today }}', food_id: foodId, amount: amount, meal_slot: currentSlot
+  })) {
+    const inp = document.createElement('input');
+    inp.type = 'hidden'; inp.name = k; inp.value = v;
+    form.appendChild(inp);
+  }
+  document.body.appendChild(form);
+  form.submit();
+}
+
 async function getFeedback() {
   const btn = document.getElementById('feedback-btn');
   btn.textContent = '⏳ Generating…';
@@ -218,19 +239,6 @@ async function getFeedback() {
     btn.classList.add('hidden');
     document.getElementById('feedback-result').classList.remove('hidden');
   } catch { btn.textContent = '✨ Get Daily Review'; btn.disabled = false; }
-}
-
-const foodMeta = {
-  {% for food in foods %}
-  {{ food.id }}: { def: {{ food.default_amount }}, unit: "{{ food.unit_label }}" },
-  {% endfor %}
-};
-function updateAmount(sel) {
-  const meta = foodMeta[sel.value];
-  const inp = document.getElementById('amount-input');
-  const lbl = document.getElementById('unit-label');
-  if (meta) { inp.value = meta.def; lbl.textContent = meta.unit; }
-  else       { inp.value = 100;     lbl.textContent = 'g'; }
 }
 </script>
 
