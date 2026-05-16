@@ -21,22 +21,22 @@ INITIAL_FOODS = [
     ("WPC Natural",                             "weight", "g",      30,  397, 78.0, 5.1, 3.2,  8.7,  3.5,  0.0,   0, 170,  ""),
     ("WPC Organic Cacao",                       "weight", "g",      30,  396, 71.9, 6.5, 3.9, 10.1,  5.0,  0.0,   0, 154,  ""),
     ("WPI Salted Caramel",                      "weight", "g",      30,  373, 86.1, 0.9, 0.6,  3.4,  3.0,  0.0,   0, 315,  ""),
-    ("Kellogg's All-Bran Original",             "weight", "g",      45,  339, 14.1, 4.6, 0.9, 46.0, 18.0, 28.0,   0, 330,  ""),
-    ("Craisins (50% Less Sugar)",               "weight", "g",      40,  287,  0.3, 0.7, 0.1, 58.0, 43.0, 25.0,   0,   6,  ""),
-    ("Devondale Extra Light Skim Milk",         "volume", "ml",    250,   34,  3.2, 0.1, 0.1,  4.9,  5.0,  0.0, 120,  45,  ""),
-    ("Full Cream Milk",                          "volume", "ml",    250,   63,  3.3, 3.4, 2.2,  4.8,  4.8,  0.0, 117,  44,  ""),
-    ("Farmers Union Greek Style Yogurt",        "weight", "g",     130,   75,  5.2, 3.3, 2.1,  6.2,  6.2,  0.0, 196,  55,  ""),
+    ("All Bran",                                 "weight", "g",      45,  339, 14.1, 4.6, 0.9, 46.0, 18.0, 28.0,   0, 330,  ""),
+    ("Craisins",                                 "weight", "g",      40,  287,  0.3, 0.7, 0.1, 58.0, 43.0, 25.0,   0,   6,  ""),
+    ("Milk - Low Fat",                           "volume", "ml",    250,   34,  3.2, 0.1, 0.1,  4.9,  5.0,  0.0, 120,  45,  ""),
+    ("Milk - Full Cream",                        "volume", "ml",    250,   63,  3.3, 3.4, 2.2,  4.8,  4.8,  0.0, 117,  44,  ""),
+    ("Greek Style Yogurt",                       "weight", "g",     130,   75,  5.2, 3.3, 2.1,  6.2,  6.2,  0.0, 196,  55,  ""),
     ("Frozen Banana Chunks",                    "weight", "g",     100,   85,  0.8, 0.0, 0.0, 20.5, 12.2,  1.5,   0,   4,  ""),
     ("Frozen Mango Chunks",                     "weight", "g",     100,   62,  0.8, 0.3, 0.1, 13.1, 12.5,  1.7,   0,   5,  ""),
     ("Honest to Goodness Psyllium Husks",       "weight", "g",      10,  183,  3.0, 0.7, 0.1,  1.3,  0.0, 71.0,   0, 120,  ""),
-    ("The Kimchi Company Vegan Kimchi",         "weight", "g",     100,   33,  2.1, 0.3, 0.0,  5.5,  2.0,  0.0,   0, 870,  "High sodium content"),
+    ("Kimchi",                                   "weight", "g",     100,   33,  2.1, 0.3, 0.0,  5.5,  2.0,  0.0,   0, 870,  "High sodium content"),
     ("McCain Mixed Vegetables",                 "weight", "g",     150,   80,  3.1, 1.0, 0.2, 12.5,  4.5,  4.0,   0,  35,  ""),
     ("Simply Wholesome Couscous Nourish Bowl",  "weight", "g",     220,  158,  4.9, 5.0, 0.8, 22.0,  3.5,  2.6,   0, 520,  "Full pack = 220g"),
     ("Simply Wholesome Quinoa Nourish Bowl",    "weight", "g",     220,  132,  4.7, 3.6, 0.5, 18.0,  3.0,  4.2,   0, 320,  "Full pack = 220g"),
-    ("Table of Plenty Mini Rice Cakes",         "unit",   "pack",    1,   70,  0.9, 3.2, 2.9,  9.4,  5.5,  0.2,   0,  11,  "1 pack = 14g. High sat fat from white choc coating."),
+    ("Mini Rice Cakes",                          "unit",   "pack",    1,   70,  0.9, 3.2, 2.9,  9.4,  5.5,  0.2,   0,  11,  "1 pack = 14g. High sat fat from white choc coating."),
     ("White Choc Protein Bar",                  "unit",   "bar",     1,  143, 21.6, 3.1, 0.7,  0.4,  0.1, 26.4,   0,  52,  "1 bar = 60g"),
     ("LMNT Watermelon Salt Electrolyte",        "unit",   "sachet",  1,    5,  0.0, 0.0, 0.0,  1.0,  1.0,  0.0,   0, 1000, "1 sachet = 6g. Very high sodium."),
-    ("Energy Gel (Original)",                   "unit",   "sachet",  1,  110,  0.0, 0.0, 0.0, 27.0, 27.0,  0.0,   0,   0,  "1 sachet = 30ml"),
+    ("Energy Gel",                               "unit",   "sachet",  1,  110,  0.0, 0.0, 0.0, 27.0, 27.0,  0.0,   0,   0,  "1 sachet = 30ml"),
     ("Lemon + Salt Gel",                        "unit",   "sachet",  1,  104,  0.0, 0.0, 0.0, 26.8, 26.8,  0.0,   0, 105,  "1 sachet = 32ml"),
     ("Nectar Sport Energy Gel (Stim)",          "unit",   "sachet",  1,   95,  0.1, 0.0, 0.0, 23.4, 20.0,  0.0,   0,   4,  "Contains 100mg caffeine per sachet"),
     ("Hemp Seeds (hulled)",                     "weight", "g",        5,  553, 31.6,48.7, 4.6,  8.7,  1.5,  4.0,  70,   5,  ""),
@@ -120,21 +120,21 @@ def init_db():
                 "WPC Organic Cacao": 5.0,
                 "WPI Salted Caramel": 3.0,
                 "Kellogg's All-Bran Original": 18.0,
-                "Craisins (50% Less Sugar)": 43.0,
-                "Devondale Extra Light Skim Milk": 5.0,
-                "Full Cream Milk": 4.8,
-                "Farmers Union Greek Style Yogurt": 6.2,
+                "Craisins": 43.0,
+                "Milk - Low Fat": 5.0,
+                "Milk - Full Cream": 4.8,
+                "Greek Style Yogurt": 6.2,
                 "Frozen Banana Chunks": 12.2,
                 "Frozen Mango Chunks": 12.5,
                 "Honest to Goodness Psyllium Husks": 0.0,
-                "The Kimchi Company Vegan Kimchi": 2.0,
+                "Kimchi": 2.0,
                 "McCain Mixed Vegetables": 4.5,
                 "Simply Wholesome Couscous Nourish Bowl": 3.5,
                 "Simply Wholesome Quinoa Nourish Bowl": 3.0,
-                "Table of Plenty Mini Rice Cakes": 5.5,
+                "Mini Rice Cakes": 5.5,
                 "White Choc Protein Bar": 0.1,
                 "LMNT Watermelon Salt Electrolyte": 1.0,
-                "Energy Gel (Original)": 27.0,
+                "Energy Gel": 27.0,
                 "Lemon + Salt Gel": 26.8,
                 "Nectar Sport Energy Gel (Stim)": 20.0,
                 "Hemp Seeds (hulled)": 1.5,
@@ -167,10 +167,19 @@ def init_db():
             ("Professional Whey NZ WPI Salted Caramel", "WPI Salted Caramel"),
             ("Fibre Boost White Choc Protein Bar",      "White Choc Protein Bar"),
             ("Macro Organic Rolled Oats",               "Rolled Oats"),
-            ("Macro Organic Full Cream Milk",           "Full Cream Milk"),
-            ("Maple Movement Energy Gel (Original)",    "Energy Gel (Original)"),
+            ("Macro Organic Full Cream Milk",           "Milk - Full Cream"),
+            ("Full Cream Milk",                         "Milk - Full Cream"),
+            ("Maple Movement Energy Gel (Original)",    "Energy Gel"),
+            ("Energy Gel (Original)",                   "Energy Gel"),
             ("Maple Movement Lemon + Salt Gel",         "Lemon + Salt Gel"),
-            ("Ocean Spray Craisins (50% Less Sugar)",   "Craisins (50% Less Sugar)"),
+            ("Ocean Spray Craisins (50% Less Sugar)",   "Craisins"),
+            ("Craisins (50% Less Sugar)",               "Craisins"),
+            ("Chicken Breast (cooked)",                 "Chicken Breast"),
+            ("Devondale Extra Light Skim Milk",         "Milk - Low Fat"),
+            ("Farmers Union Greek Style Yogurt",        "Greek Style Yogurt"),
+            ("Kellogg's All-Bran Original",             "All Bran"),
+            ("Table of Plenty Mini Rice Cakes",         "Mini Rice Cakes"),
+            ("The Kimchi Company Vegan Kimchi",         "Kimchi"),
         ]
         for old_name, new_name in food_renames:
             conn.execute("UPDATE foods SET name = ? WHERE name = ?", (new_name, old_name))
@@ -284,13 +293,13 @@ def init_db():
                 )
 
         # Migration: add chicken breast if missing
-        if not conn.execute("SELECT 1 FROM foods WHERE name = 'Chicken Breast (cooked)'").fetchone():
+        if not conn.execute("SELECT 1 FROM foods WHERE name = 'Chicken Breast'").fetchone():
             conn.execute(
                 """INSERT INTO foods
                    (name, unit_type, unit_label, default_amount,
                     calories, protein, fat, sat_fat, carbs, fibre, calcium, sodium, notes)
                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""",
-                ("Chicken Breast (cooked)", "weight", "g", 125, 165, 31.0, 3.6, 1.0, 0.0, 0.0, 15, 74, ""),
+                ("Chicken Breast", "weight", "g", 125, 165, 31.0, 3.6, 1.0, 0.0, 0.0, 15, 74, ""),
             )
 
         # Migration: rename "Lunch" to "Lunch with Couscous" if it exists
@@ -343,12 +352,12 @@ def init_db():
         extra_meals = [
             ("Fibre Boost Protein Bar",            8,  [("White Choc Protein Bar",                  1)]),
             ("LMNT",                               9,  [("LMNT Watermelon Salt Electrolyte",         1)]),
-            ("Maple Movement Original Gel",       10,  [("Energy Gel (Original)",                   1)]),
+            ("Maple Movement Original Gel",       10,  [("Energy Gel",                              1)]),
             ("Maple Movement Lemon + Salt Gel",   11,  [("Lemon + Salt Gel",                        1)]),
             ("Nectar Sport Gel",                  12,  [("Nectar Sport Energy Gel (Stim)",           1)]),
             ("WPC Cacao",                         13,  [("WPC Organic Cacao",                        50)]),
             ("WPI Salted Caramel",                 14,  [("WPI Salted Caramel",                       50)]),
-            ("Kimchi",                            15,  [("The Kimchi Company Vegan Kimchi",         30)]),
+            ("Kimchi",                            15,  [("Kimchi",                                  30)]),
         ]
         for meal_name, order, items in extra_meals:
             if not conn.execute("SELECT 1 FROM meals WHERE name = ?", (meal_name,)).fetchone():
@@ -388,7 +397,7 @@ def init_db():
             for food_name, amount in [
                 ("Simply Wholesome Couscous Nourish Bowl", 100),
                 ("McCain Mixed Vegetables",                250),
-                ("Chicken Breast (cooked)",                125),
+                ("Chicken Breast",                         125),
             ]:
                 food = conn.execute("SELECT id FROM foods WHERE name = ?", (food_name,)).fetchone()
                 if food:
@@ -446,8 +455,8 @@ def init_db():
                 ("Frozen Mango Chunks",                     100),
                 ("Devondale Extra Light Skim Milk",         250),
                 ("Honest to Goodness Psyllium Husks",       12),
-                ("Kellogg's All-Bran Original",             30),
-                ("Craisins (50% Less Sugar)",               30),
+                ("All Bran",                                30),
+                ("Craisins",                                30),
                 ("Hemp Seeds (hulled)",                      5),
                 ("Flax Seeds",                               5),
                 ("Chia Seeds",                               5),
@@ -461,12 +470,12 @@ def init_db():
                 ("Pecan Nuts",                      7,  [("Pecan Nuts", 30)]),
                 ("Fibre Boost Protein Bar",         8,  [("White Choc Protein Bar",                  1)]),
                 ("LMNT",                            9,  [("LMNT Watermelon Salt Electrolyte",         1)]),
-                ("Maple Movement Original Gel",    10,  [("Energy Gel (Original)",                   1)]),
+                ("Maple Movement Original Gel",    10,  [("Energy Gel",                              1)]),
                 ("Maple Movement Lemon + Salt Gel",11,  [("Lemon + Salt Gel",                        1)]),
                 ("Nectar Sport Gel",               12,  [("Nectar Sport Energy Gel (Stim)",           1)]),
                 ("WPC Cacao",                      13,  [("WPC Organic Cacao",                        50)]),
                 ("WPI Salted Caramel",             14,  [("WPI Salted Caramel",                       50)]),
-                ("Kimchi",                         15,  [("The Kimchi Company Vegan Kimchi",         30)]),
+                ("Kimchi",                         15,  [("Kimchi",                                  30)]),
             ]:
                 conn.execute("INSERT INTO meals (name, sort_order) VALUES (?, ?)", (meal_name, sort_order))
                 mid = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
@@ -484,7 +493,7 @@ def init_db():
             for food_name, amount in [
                 ("Simply Wholesome Couscous Nourish Bowl", 100),
                 ("McCain Mixed Vegetables",                250),
-                ("Chicken Breast (cooked)",                125),
+                ("Chicken Breast",                         125),
             ]:
                 food = conn.execute("SELECT id FROM foods WHERE name = ?", (food_name,)).fetchone()
                 if food:
