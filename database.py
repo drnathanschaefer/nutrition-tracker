@@ -98,11 +98,17 @@ def init_db():
                 food_id INTEGER NOT NULL,
                 amount REAL NOT NULL,
                 meal_id INTEGER DEFAULT NULL,
+                meal_slot INTEGER NOT NULL DEFAULT 1,
                 logged_at TEXT NOT NULL DEFAULT (datetime('now')),
                 FOREIGN KEY (food_id) REFERENCES foods(id),
                 FOREIGN KEY (meal_id) REFERENCES meals(id)
             )
         """)
+        # Migration: add meal_slot column if missing
+        log_cols = [r[1] for r in conn.execute("PRAGMA table_info(log_entries)").fetchall()]
+        if "meal_slot" not in log_cols:
+            conn.execute("ALTER TABLE log_entries ADD COLUMN meal_slot INTEGER NOT NULL DEFAULT 1")
+
         # Migration: add sugar column to foods if missing
         food_cols = [r[1] for r in conn.execute("PRAGMA table_info(foods)").fetchall()]
         if "sugar" not in food_cols:
@@ -497,15 +503,16 @@ def get_day_entries(date_str):
     with get_db() as conn:
         rows = conn.execute("""
             SELECT le.id, le.date, le.food_id, le.amount, le.meal_id,
+                   le.meal_slot,
                    COALESCE(m.name, '') AS meal_name,
                    f.name, f.unit_type, f.unit_label,
                    f.calories, f.protein, f.fat, f.sat_fat,
-                   f.carbs, f.fibre, f.calcium, f.sodium
+                   f.carbs, f.sugar, f.fibre, f.calcium, f.sodium
             FROM log_entries le
             JOIN foods f ON le.food_id = f.id
             LEFT JOIN meals m ON le.meal_id = m.id
             WHERE le.date = ?
-            ORDER BY le.logged_at
+            ORDER BY le.meal_slot, le.logged_at
         """, (date_str,)).fetchall()
     return [_compute_entry(r) for r in rows]
 
@@ -532,11 +539,11 @@ def get_history(days=30):
     return result
 
 
-def add_log_entry(date_str, food_id, amount):
+def add_log_entry(date_str, food_id, amount, meal_slot=1):
     with get_db() as conn:
         conn.execute(
-            "INSERT INTO log_entries (date, food_id, amount) VALUES (?,?,?)",
-            (date_str, food_id, amount),
+            "INSERT INTO log_entries (date, food_id, amount, meal_slot) VALUES (?,?,?,?)",
+            (date_str, food_id, amount, meal_slot),
         )
 
 
@@ -636,13 +643,13 @@ def save_feedback(date_str, feedback):
         )
 
 
-def log_meal(meal_id, date_str):
+def log_meal(meal_id, date_str, meal_slot=1):
     with get_db() as conn:
         items = conn.execute(
             "SELECT food_id, amount FROM meal_items WHERE meal_id = ?", (meal_id,)
         ).fetchall()
         for item in items:
             conn.execute(
-                "INSERT INTO log_entries (date, food_id, amount, meal_id) VALUES (?,?,?,?)",
-                (date_str, item["food_id"], item["amount"], meal_id),
+                "INSERT INTO log_entries (date, food_id, amount, meal_id, meal_slot) VALUES (?,?,?,?,?)",
+                (date_str, item["food_id"], item["amount"], meal_id, meal_slot),
             )

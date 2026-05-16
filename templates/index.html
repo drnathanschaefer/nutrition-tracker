@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-<!-- Nutrient grid -->
+<!-- Daily totals grid -->
 <div class="grid grid-cols-2 gap-3 mb-4">
   {% for label, value, unit, colour in [
       ('Calories',   totals.calories, 'kcal', 'text-orange-500'),
@@ -29,22 +29,26 @@
   <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2 px-1">Log a Meal</h2>
   <div class="space-y-2">
     {% for meal in meals %}
-    <div class="bg-white rounded-xl shadow-sm p-4 flex items-center justify-between gap-3">
-      <div class="min-w-0">
-        <p class="text-sm font-semibold text-gray-800">
-          {{ meal.name }}{% if meal.foods | length == 1 and meal.foods[0].unit_type == 'weight' %} — {{ meal.foods[0].amount | int }} g{% endif %}
-        </p>
-        <p class="text-xs text-gray-400 mt-0.5">
-          <span class="text-orange-500">{{ meal.totals.calories }} kcal</span> &middot;
-          <span class="text-amber-600 font-medium">{{ meal.totals.protein }}g P</span> &middot;
-          {{ meal.totals.carbs }}g C &middot; {{ meal.totals.fat }}g F
-        </p>
+    <div class="bg-white rounded-xl shadow-sm p-4">
+      <div class="flex items-start justify-between gap-2 mb-2">
+        <div class="min-w-0">
+          <p class="text-sm font-semibold text-gray-800">
+            {{ meal.name }}{% if meal.foods | length == 1 and meal.foods[0].unit_type == 'weight' %} — {{ meal.foods[0].amount | int }} g{% endif %}
+          </p>
+          <p class="text-xs text-gray-400 mt-0.5">
+            <span class="text-orange-500">{{ meal.totals.calories }} kcal</span> &middot;
+            <span class="text-amber-600 font-medium">{{ meal.totals.protein }}g P</span> &middot;
+            {{ meal.totals.carbs }}g C &middot; {{ meal.totals.fat }}g F
+          </p>
+        </div>
       </div>
-      <form action="/meals/{{ meal.id }}/log" method="post" class="flex-shrink-0">
-        <button type="submit"
-                class="px-4 py-2 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white rounded-lg text-sm font-semibold whitespace-nowrap">
-          + Log
+      <form action="/meals/{{ meal.id }}/log" method="post" class="flex gap-1.5">
+        {% for s in [1,2,3,4] %}
+        <button type="submit" name="meal_slot" value="{{ s }}"
+                class="flex-1 py-1.5 bg-gray-100 hover:bg-green-600 hover:text-white text-gray-600 rounded-lg text-xs font-semibold transition-colors">
+          M{{ s }}
         </button>
+        {% endfor %}
       </form>
     </div>
     {% endfor %}
@@ -74,64 +78,101 @@
                class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm pr-10 focus:outline-none focus:ring-2 focus:ring-green-400">
         <span id="unit-label" class="absolute right-3 top-2.5 text-sm text-gray-400">g</span>
       </div>
-      <button type="submit"
-              class="px-5 py-2.5 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white rounded-lg text-sm font-semibold">
-        Add
-      </button>
     </div>
+    <div>
+      <p class="text-xs font-medium text-gray-500 mb-1.5">Add to meal</p>
+      <div class="grid grid-cols-4 gap-1.5">
+        {% for s in [1,2,3,4] %}
+        <label class="cursor-pointer">
+          <input type="radio" name="meal_slot" value="{{ s }}" class="sr-only peer" {% if s == 1 %}checked{% endif %}>
+          <div class="text-center py-2 rounded-lg text-sm font-semibold border border-gray-200
+                      peer-checked:bg-green-600 peer-checked:text-white peer-checked:border-green-600
+                      text-gray-500 hover:border-green-400 transition-colors">
+            Meal {{ s }}
+          </div>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+    <button type="submit"
+            class="w-full py-2.5 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white rounded-lg text-sm font-semibold">
+      Add
+    </button>
   </form>
 </div>
 
-<!-- Today's log -->
+<!-- Today's log by slot -->
 {% if entries %}
-<div class="space-y-3">
+<div class="space-y-4">
   <div class="flex items-center justify-between px-1">
     <h2 class="font-semibold text-gray-700">Today's Log</h2>
     <form action="/log/clear" method="post"
           onsubmit="return confirm('Clear everything logged today?')">
       <input type="hidden" name="log_date" value="{{ today }}">
-      <button type="submit"
-              class="text-xs text-red-400 hover:text-red-600 font-medium">
+      <button type="submit" class="text-xs text-red-400 hover:text-red-600 font-medium">
         Clear all
       </button>
     </form>
   </div>
-  {% set ns = namespace(last_meal='__start__') %}
-  {% for e in entries %}
 
-  {% if e.meal_name != ns.last_meal %}
-    {% if not loop.first %}</div></div>{% endif %}
-    {% set ns.last_meal = e.meal_name %}
-    <div class="bg-white rounded-2xl shadow-sm p-5">
-    <p class="text-xs font-semibold text-green-700 uppercase tracking-wide mb-2">{{ e.meal_name if e.meal_name else 'Snacks' }}</p>
-    <div class="divide-y divide-gray-50">
-  {% endif %}
+  {% for slot_num in [1,2,3,4] %}
+  {% if slot_num in slots %}
+  {% set slot = slots[slot_num] %}
+  <div class="bg-white rounded-2xl shadow-sm p-5">
+    <p class="text-xs font-bold text-green-700 uppercase tracking-wide mb-3">Meal {{ slot_num }}</p>
 
-    <div class="flex items-center justify-between py-2.5 first:pt-0 last:pb-0">
-      <div class="flex-1 min-w-0 pr-2">
-        <p class="text-sm font-medium text-gray-800 truncate">{{ e.name }}</p>
-        <p class="text-xs text-gray-400 mt-0.5">
-          {{ e.amount }}{{ e.unit_label }} &middot;
-          {{ e.total_calories }} kcal &middot;
-          <span class="text-amber-600 font-medium">{{ e.total_protein }}g protein</span>
-          {% if e.total_fibre > 0 %} &middot; {{ e.total_fibre }}g fibre{% endif %}
-        </p>
+    <!-- Food entries -->
+    <div class="divide-y divide-gray-50 mb-4">
+      {% for e in slot.entries %}
+      <div class="flex items-center justify-between py-2.5 first:pt-0">
+        <div class="flex-1 min-w-0 pr-2">
+          <p class="text-sm font-medium text-gray-800 truncate">{{ e.name }}</p>
+          <p class="text-xs text-gray-400 mt-0.5">
+            {{ e.amount }}{{ e.unit_label }} &middot;
+            {{ e.total_calories }} kcal &middot;
+            <span class="text-amber-600 font-medium">{{ e.total_protein }}g P</span>
+            {% if e.total_fibre > 0 %} &middot; {{ e.total_fibre }}g fibre{% endif %}
+          </p>
+        </div>
+        <form action="/log/delete/{{ e.id }}" method="post">
+          <button type="submit" class="text-gray-300 hover:text-red-400 text-xl leading-none px-1">
+            &times;
+          </button>
+        </form>
       </div>
-      <form action="/log/delete/{{ e.id }}" method="post">
-        <button type="submit"
-                class="text-gray-300 hover:text-red-400 text-xl leading-none px-1 py-0.5">
-          &times;
-        </button>
-      </form>
+      {% endfor %}
     </div>
 
-  {% if loop.last %}</div></div>{% endif %}
+    <!-- Slot subtotals -->
+    <div class="border-t border-gray-100 pt-3">
+      <p class="text-xs font-medium text-gray-400 mb-2">Meal {{ slot_num }} totals</p>
+      <div class="grid grid-cols-3 gap-x-3 gap-y-1.5">
+        {% for label, key, unit, colour in [
+            ('Calories', 'calories', 'kcal', 'text-orange-500'),
+            ('Protein',  'protein',  'g',    'text-amber-500'),
+            ('Carbs',    'carbs',    'g',    'text-blue-500'),
+            ('Sugar',    'sugar',    'g',    'text-pink-500'),
+            ('Fat',      'fat',      'g',    'text-purple-500'),
+            ('Sat Fat',  'sat_fat',  'g',    'text-red-500'),
+            ('Fibre',    'fibre',    'g',    'text-green-600'),
+            ('Sodium',   'sodium',   'mg',   'text-yellow-600'),
+            ('Calcium',  'calcium',  'mg',   'text-cyan-600'),
+        ] %}
+        <div>
+          <p class="text-xs text-gray-400">{{ label }}</p>
+          <p class="text-sm font-semibold {{ colour }}">{{ slot.totals[key] }}<span class="text-xs font-normal text-gray-400 ml-0.5">{{ unit }}</span></p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
   {% endfor %}
 </div>
 {% else %}
 <div class="text-center py-10 text-gray-400">
   <p class="text-5xl mb-3">🍽️</p>
-  <p class="text-sm">Nothing logged yet. Add your first food above.</p>
+  <p class="text-sm">Nothing logged yet — tap a meal or add a food above.</p>
 </div>
 {% endif %}
 
@@ -178,9 +219,7 @@ async function getFeedback() {
     document.getElementById('feedback-result').classList.remove('hidden');
   } catch { btn.textContent = '✨ Get Daily Review'; btn.disabled = false; }
 }
-</script>
 
-<script>
 const foodMeta = {
   {% for food in foods %}
   {{ food.id }}: { def: {{ food.default_amount }}, unit: "{{ food.unit_label }}" },

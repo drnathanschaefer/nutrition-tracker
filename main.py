@@ -35,11 +35,22 @@ async def today(request: Request):
     meals = database.get_all_meals()
     feedback = database.get_feedback(today_str)
     has_api_key = bool(os.environ.get("ANTHROPIC_API_KEY"))
+
+    # Build per-slot data
+    nutrient_keys = ["calories", "protein", "fat", "sat_fat", "carbs", "sugar", "fibre", "calcium", "sodium"]
+    slots = {}
+    for slot in range(1, 5):
+        slot_entries = [e for e in entries if e.get("meal_slot", 1) == slot]
+        if slot_entries:
+            slot_totals = {k: round(sum(e[f"total_{k}"] for e in slot_entries), 1) for k in nutrient_keys}
+            slots[slot] = {"entries": slot_entries, "totals": slot_totals}
+
     return templates.TemplateResponse(request=request, name="index.html", context={
         "today": today_str,
         "today_fmt": today_fmt,
         "entries": entries,
         "totals": totals,
+        "slots": slots,
         "foods": foods,
         "meals": meals,
         "feedback": feedback,
@@ -92,9 +103,9 @@ async def remove_meal_item(meal_id: int, item_id: int):
 
 
 @app.post("/meals/{meal_id}/log")
-async def log_meal(meal_id: int):
+async def log_meal(meal_id: int, meal_slot: int = Form(1)):
     today_str = today_local().isoformat()
-    database.log_meal(meal_id, today_str)
+    database.log_meal(meal_id, today_str, meal_slot)
     return RedirectResponse(url="/", status_code=303)
 
 
@@ -113,8 +124,9 @@ async def add_log(
     food_id: int = Form(...),
     amount: float = Form(...),
     log_date: str = Form(...),
+    meal_slot: int = Form(1),
 ):
-    database.add_log_entry(log_date, food_id, amount)
+    database.add_log_entry(log_date, food_id, amount, meal_slot)
     return RedirectResponse(url="/", status_code=303)
 
 
