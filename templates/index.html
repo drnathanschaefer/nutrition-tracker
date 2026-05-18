@@ -63,7 +63,7 @@
       {% for s in [1,2,3,4,5] %}
       <button type="button" onclick="selectSlot({{ s }})" id="slot-btn-{{ s }}"
               class="py-1.5 rounded-lg text-xs font-semibold border transition-colors
-                     {% if s == 1 %}bg-green-600 text-white border-green-600{% else %}bg-gray-100 text-gray-500 border-gray-200{% endif %}">
+                     bg-gray-100 text-gray-500 border-gray-200">
         Meal {{ s }}
       </button>
       {% endfor %}
@@ -192,6 +192,11 @@
 <script>
 let currentSlot = 1;
 
+document.addEventListener('DOMContentLoaded', function() {
+  const saved = parseInt(localStorage.getItem('lastSlot')) || 1;
+  selectSlot(saved);
+});
+
 function selectSlot(s) {
   currentSlot = s;
   for (let i = 1; i <= 5; i++) {
@@ -209,6 +214,7 @@ function selectSlot(s) {
 function addFood(foodId) {
   const amount = document.getElementById('amt-' + foodId).value;
   if (!amount || amount <= 0) return;
+  localStorage.setItem('lastSlot', currentSlot);
   const form = document.createElement('form');
   form.method = 'POST';
   form.action = '/log/add';
