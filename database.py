@@ -203,6 +203,9 @@ def init_db():
             ("Fibre Boost White Choc Protein Bar",      "Protein Bar - White Choc"),
             ("WPI Salted Caramel",                      "Protein - Salted Caramel"),
             ("Professional Whey NZ WPI Salted Caramel", "Protein - Salted Caramel"),
+            ("Protein Powder - Natural",                "Protein - Natural"),
+            ("Protein Powder - Cacao",                  "Protein - Cacao"),
+            ("Protein Powder - Salted Caramel",         "Protein - Salted Caramel"),
         ]
         for old_name, new_name in food_renames:
             conn.execute("UPDATE foods SET name = ? WHERE name = ?", (new_name, old_name))
