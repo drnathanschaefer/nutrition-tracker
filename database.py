@@ -46,6 +46,9 @@ INITIAL_FOODS = [
     ("Chicken Breast (cooked)",                 "weight", "g",      125,  165, 31.0, 3.6, 1.0,  0.0,  0.0,  0.0,  15,  74,  ""),
     ("Apple",                                   "weight", "g",      150,   52,  0.3, 0.2, 0.0, 13.8, 10.4,  2.4,   6,   1,  ""),
     ("Banana",                                  "weight", "g",      120,   89,  1.1, 0.3, 0.1, 23.0, 12.2,  2.6,   5,   1,  ""),
+    ("Blueberries",                             "weight", "g",       30,   57,  0.7, 0.3, 0.0, 14.5, 10.0,  2.4,   6,   1,  ""),
+    ("Strawberries",                            "weight", "g",       30,   32,  0.7, 0.3, 0.0,  7.7,  4.9,  2.0,  16,   1,  ""),
+    ("Honey",                                   "weight", "g",       10,  304,  0.3, 0.0, 0.0, 82.4, 82.1,  0.2,   6,   4,  ""),
     ("Walnuts",                                 "weight", "g",       30,  654, 15.2,65.2, 6.1, 13.7,  2.6,  6.7,  98,   2,  ""),
     ("Brazil Nuts",                             "unit",   "nut",      1,   33,  0.7, 3.4, 0.8,  0.6,  0.1,  0.4,   8,   0,  "1 nut ≈ 5g"),
     ("Almonds",                                 "weight", "g",       30,  579, 21.2,49.9, 3.8, 21.6,  4.4, 12.5, 264,   1,  ""),
@@ -279,6 +282,21 @@ def init_db():
                        (name, unit_type, unit_label, default_amount,
                         calories, protein, fat, sat_fat, carbs, fibre, calcium, sodium, notes)
                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                    food,
+                )
+
+        # Migration: add blueberries, strawberries, honey if missing
+        for food in [
+            ("Blueberries",  "weight", "g",  30,  57, 0.7, 0.3, 0.0, 14.5, 10.0, 2.4,  6,  1, ""),
+            ("Strawberries", "weight", "g",  30,  32, 0.7, 0.3, 0.0,  7.7,  4.9, 2.0, 16,  1, ""),
+            ("Honey",        "weight", "g",  10, 304, 0.3, 0.0, 0.0, 82.4, 82.1, 0.2,  6,  4, ""),
+        ]:
+            if not conn.execute("SELECT 1 FROM foods WHERE name = ?", (food[0],)).fetchone():
+                conn.execute(
+                    """INSERT INTO foods
+                       (name, unit_type, unit_label, default_amount,
+                        calories, protein, fat, sat_fat, carbs, sugar, fibre, calcium, sodium, notes)
+                       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
                     food,
                 )
 
