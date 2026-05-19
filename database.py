@@ -18,8 +18,8 @@ DB_PATH = os.environ.get("DB_PATH", "nutrition.db")
 #          calories, protein, fat, sat_fat, carbs, sugar, fibre, calcium, sodium, notes
 INITIAL_FOODS = [
     ("Oats",                                     "weight", "g",     100,  377, 12.5, 9.0, 1.5, 55.5,  1.1, 11.0,   0,   5,  ""),
-    ("WPC Natural",                             "weight", "g",      50,  397, 78.0, 5.1, 3.2,  8.7,  3.5,  0.0,   0, 170,  ""),
-    ("WPC Organic Cacao",                       "weight", "g",      50,  396, 71.9, 6.5, 3.9, 10.1,  5.0,  0.0,   0, 154,  ""),
+    ("Protein Powder - Natural",                "weight", "g",      50,  397, 78.0, 5.1, 3.2,  8.7,  3.5,  0.0,   0, 170,  ""),
+    ("Protein Powder - Cacao",                 "weight", "g",      50,  396, 71.9, 6.5, 3.9, 10.1,  5.0,  0.0,   0, 154,  ""),
     ("Protein Powder - Salted Caramel",         "weight", "g",      50,  373, 86.1, 0.9, 0.6,  3.4,  3.0,  0.0,   0, 315,  ""),
     ("All Bran",                                 "weight", "g",      30,  339, 14.1, 4.6, 0.9, 46.0, 18.0, 28.0,   0, 330,  ""),
     ("Craisins",                                 "weight", "g",      30,  287,  0.3, 0.7, 0.1, 58.0, 43.0, 25.0,   0,   6,  ""),
@@ -119,8 +119,8 @@ def init_db():
             # Populate sugar for existing foods
             sugar_values = {
                 "Oats": 1.1,
-                "WPC Natural": 3.5,
-                "WPC Organic Cacao": 5.0,
+                "Protein Powder - Natural": 3.5,
+                "Protein Powder - Cacao": 5.0,
                 "Protein Powder - Salted Caramel": 3.0,
                 "Kellogg's All-Bran Original": 18.0,
                 "Craisins": 43.0,
@@ -165,8 +165,10 @@ def init_db():
         food_renames = [
             ("Creative Gourmet Frozen Banana Chunks",  "Frozen Banana Chunks"),
             ("Creative Gourmet Frozen Mango Chunks",   "Frozen Mango Chunks"),
-            ("Professional Whey WPC Natural",           "WPC Natural"),
-            ("Professional Whey WPC Organic Cacao",     "WPC Organic Cacao"),
+            ("Professional Whey WPC Natural",           "Protein Powder - Natural"),
+            ("WPC Natural",                             "Protein Powder - Natural"),
+            ("Professional Whey WPC Organic Cacao",     "Protein Powder - Cacao"),
+            ("WPC Organic Cacao",                       "Protein Powder - Cacao"),
             ("Professional Whey NZ WPI Salted Caramel", "WPI Salted Caramel"),
             ("Fibre Boost White Choc Protein Bar",      "White Choc Protein Bar"),
             ("Macro Organic Rolled Oats",               "Rolled Oats"),
@@ -231,8 +233,8 @@ def init_db():
             ("Kimchi",           30),
             ("Milk - Full Cream", 215),
             ("Oats",             100),
-            ("WPC Natural",       50),
-            ("WPC Organic Cacao", 50),
+            ("Protein Powder - Natural", 50),
+            ("Protein Powder - Cacao",  50),
             ("Protein Powder - Salted Caramel", 50),
         ]
         for name, amount in default_amounts:
@@ -368,6 +370,7 @@ def init_db():
             ("Energy Gel - Caffeine",           "Gel - Caffeine"),
             ("Maple Movement Original Gel",     "Gel - Original"),
             ("Energy Gel",                      "Gel - Original"),
+            ("WPC Cacao",                       "Protein Powder - Cacao"),
         ]
         for old_name, new_name in meal_renames:
             conn.execute("UPDATE meals SET name = ? WHERE name = ?", (new_name, old_name))
@@ -389,7 +392,7 @@ def init_db():
             ("Gel - Original",                  10),
             ("Gel - Lemon",                     11),
             ("Gel - Caffeine",                  12),
-            ("WPC Cacao",                       13),
+            ("Protein Powder - Cacao",          13),
             ("Protein Powder - Salted Caramel", 14),
             ("Kimchi",                          15),
         ]
@@ -422,7 +425,7 @@ def init_db():
             ("Gel - Original",                    10,  [("Gel - Original",                          1)]),
             ("Gel - Lemon",                       11,  [("Gel - Lemon",                             1)]),
             ("Gel - Caffeine",                    12,  [("Gel - Caffeine",                          1)]),
-            ("WPC Cacao",                         13,  [("WPC Organic Cacao",                       50)]),
+            ("Protein Powder - Cacao",            13,  [("Protein Powder - Cacao",                 50)]),
             ("Protein Powder - Salted Caramel",   14,  [("Protein Powder - Salted Caramel",         50)]),
             ("Kimchi",                            15,  [("Kimchi",                                  30)]),
         ]
@@ -516,7 +519,7 @@ def init_db():
             conn.execute("INSERT INTO meals (name, sort_order) VALUES (?, ?)", ("Breakfast", 1))
             meal_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
             breakfast_items = [
-                ("WPC Natural",                             50),
+                ("Protein Powder - Natural",                50),
                 ("Oats",                                    100),
                 ("Frozen Banana Chunks",                    100),
                 ("Frozen Mango Chunks",                     100),
