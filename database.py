@@ -17,15 +17,15 @@ DB_PATH = os.environ.get("DB_PATH", "nutrition.db")
 # Columns: name, unit_type, unit_label, default_amount,
 #          calories, protein, fat, sat_fat, carbs, sugar, fibre, calcium, sodium, notes
 INITIAL_FOODS = [
-    ("Rolled Oats",                              "weight", "g",     100,  377, 12.5, 9.0, 1.5, 55.5,  1.1, 11.0,   0,   5,  ""),
+    ("Oats",                                     "weight", "g",     100,  377, 12.5, 9.0, 1.5, 55.5,  1.1, 11.0,   0,   5,  ""),
     ("WPC Natural",                             "weight", "g",      50,  397, 78.0, 5.1, 3.2,  8.7,  3.5,  0.0,   0, 170,  ""),
     ("WPC Organic Cacao",                       "weight", "g",      50,  396, 71.9, 6.5, 3.9, 10.1,  5.0,  0.0,   0, 154,  ""),
-    ("WPI Salted Caramel",                      "weight", "g",      50,  373, 86.1, 0.9, 0.6,  3.4,  3.0,  0.0,   0, 315,  ""),
+    ("Protein Powder - Salted Caramel",         "weight", "g",      50,  373, 86.1, 0.9, 0.6,  3.4,  3.0,  0.0,   0, 315,  ""),
     ("All Bran",                                 "weight", "g",      30,  339, 14.1, 4.6, 0.9, 46.0, 18.0, 28.0,   0, 330,  ""),
     ("Craisins",                                 "weight", "g",      30,  287,  0.3, 0.7, 0.1, 58.0, 43.0, 25.0,   0,   6,  ""),
     ("Milk - Low Fat",                           "volume", "ml",    250,   34,  3.2, 0.1, 0.1,  4.9,  5.0,  0.0, 120,  45,  ""),
     ("Milk - Full Cream",                        "volume", "ml",    215,   63,  3.3, 3.4, 2.2,  4.8,  4.8,  0.0, 117,  44,  ""),
-    ("Greek Style Yogurt",                       "weight", "g",     130,   75,  5.2, 3.3, 2.1,  6.2,  6.2,  0.0, 196,  55,  ""),
+    ("Yoghurt - Greek Style",                    "weight", "g",     130,   75,  5.2, 3.3, 2.1,  6.2,  6.2,  0.0, 196,  55,  ""),
     ("Frozen Banana Chunks",                    "weight", "g",     100,   85,  0.8, 0.0, 0.0, 20.5, 12.2,  1.5,   0,   4,  ""),
     ("Frozen Mango Chunks",                     "weight", "g",     100,   62,  0.8, 0.3, 0.1, 13.1, 12.5,  1.7,   0,   5,  ""),
     ("Honest to Goodness Psyllium Husks",       "weight", "g",      10,  183,  3.0, 0.7, 0.1,  1.3,  0.0, 71.0,   0, 120,  ""),
@@ -33,12 +33,12 @@ INITIAL_FOODS = [
     ("McCain Mixed Vegetables",                 "weight", "g",     150,   80,  3.1, 1.0, 0.2, 12.5,  4.5,  4.0,   0,  35,  ""),
     ("Simply Wholesome Couscous Nourish Bowl",  "weight", "g",     220,  158,  4.9, 5.0, 0.8, 22.0,  3.5,  2.6,   0, 520,  "Full pack = 220g"),
     ("Simply Wholesome Quinoa Nourish Bowl",    "weight", "g",     220,  132,  4.7, 3.6, 0.5, 18.0,  3.0,  4.2,   0, 320,  "Full pack = 220g"),
-    ("Mini Rice Cakes",                          "unit",   "pack",    1,   70,  0.9, 3.2, 2.9,  9.4,  5.5,  0.2,   0,  11,  "1 pack = 14g. High sat fat from white choc coating."),
-    ("White Choc Protein Bar",                  "unit",   "bar",     1,  143, 21.6, 3.1, 0.7,  0.4,  0.1, 26.4,   0,  52,  "1 bar = 60g"),
+    ("Rice Cakes",                               "unit",   "pack",    1,   70,  0.9, 3.2, 2.9,  9.4,  5.5,  0.2,   0,  11,  "1 pack = 14g. High sat fat from white choc coating."),
+    ("Protein Bar - White Choc",                "unit",   "bar",     1,  143, 21.6, 3.1, 0.7,  0.4,  0.1, 26.4,   0,  52,  "1 bar = 60g"),
     ("LMNT - Watermelon",                        "unit",   "sachet",  1,    5,  0.0, 0.0, 0.0,  1.0,  1.0,  0.0,   0, 1000, "1 sachet = 6g. Very high sodium."),
-    ("Energy Gel",                               "unit",   "sachet",  1,  110,  0.0, 0.0, 0.0, 27.0, 27.0,  0.0,   0,   0,  "1 sachet = 30ml"),
-    ("Energy Gel - Lemon",                       "unit",   "sachet",  1,  104,  0.0, 0.0, 0.0, 26.8, 26.8,  0.0,   0, 105,  "1 sachet = 32ml"),
-    ("Energy Gel - Caffeine",                    "unit",   "sachet",  1,   95,  0.1, 0.0, 0.0, 23.4, 20.0,  0.0,   0,   4,  "Contains 100mg caffeine per sachet"),
+    ("Gel - Original",                           "unit",   "sachet",  1,  110,  0.0, 0.0, 0.0, 27.0, 27.0,  0.0,   0,   0,  "1 sachet = 30ml"),
+    ("Gel - Lemon",                              "unit",   "sachet",  1,  104,  0.0, 0.0, 0.0, 26.8, 26.8,  0.0,   0, 105,  "1 sachet = 32ml"),
+    ("Gel - Caffeine",                           "unit",   "sachet",  1,   95,  0.1, 0.0, 0.0, 23.4, 20.0,  0.0,   0,   4,  "Contains 100mg caffeine per sachet"),
     ("Hemp Seeds (hulled)",                     "weight", "g",        5,  553, 31.6,48.7, 4.6,  8.7,  1.5,  4.0,  70,   5,  ""),
     ("Flax Seeds",                              "weight", "g",        5,  534, 18.3,42.2, 3.7, 28.9,  1.6, 27.3, 255,  30,  ""),
     ("Chia Seeds",                              "weight", "g",        5,  486, 16.5,30.7, 3.3, 42.1,  0.0, 34.4, 631,  16,  ""),
@@ -118,15 +118,15 @@ def init_db():
             conn.execute("ALTER TABLE foods ADD COLUMN sugar REAL DEFAULT 0")
             # Populate sugar for existing foods
             sugar_values = {
-                "Rolled Oats": 1.1,
+                "Oats": 1.1,
                 "WPC Natural": 3.5,
                 "WPC Organic Cacao": 5.0,
-                "WPI Salted Caramel": 3.0,
+                "Protein Powder - Salted Caramel": 3.0,
                 "Kellogg's All-Bran Original": 18.0,
                 "Craisins": 43.0,
                 "Milk - Low Fat": 5.0,
                 "Milk - Full Cream": 4.8,
-                "Greek Style Yogurt": 6.2,
+                "Yoghurt - Greek Style": 6.2,
                 "Frozen Banana Chunks": 12.2,
                 "Frozen Mango Chunks": 12.5,
                 "Honest to Goodness Psyllium Husks": 0.0,
@@ -134,12 +134,12 @@ def init_db():
                 "McCain Mixed Vegetables": 4.5,
                 "Simply Wholesome Couscous Nourish Bowl": 3.5,
                 "Simply Wholesome Quinoa Nourish Bowl": 3.0,
-                "Mini Rice Cakes": 5.5,
-                "White Choc Protein Bar": 0.1,
+                "Rice Cakes": 5.5,
+                "Protein Bar - White Choc": 0.1,
                 "LMNT - Watermelon": 1.0,
-                "Energy Gel": 27.0,
-                "Energy Gel - Lemon": 26.8,
-                "Energy Gel - Caffeine": 20.0,
+                "Gel - Original": 27.0,
+                "Gel - Lemon": 26.8,
+                "Gel - Caffeine": 20.0,
                 "Hemp Seeds (hulled)": 1.5,
                 "Flax Seeds": 1.6,
                 "Chia Seeds": 0.0,
@@ -186,8 +186,20 @@ def init_db():
             ("Lemon + Salt Gel",                        "Energy Gel - Lemon"),
             ("Maple Movement Lemon + Salt Gel",         "Energy Gel - Lemon"),
             ("LMNT Watermelon Salt Electrolyte",        "LMNT - Watermelon"),
-            ("Nectar Sport Energy Gel (Stim)",          "Energy Gel - Caffeine"),
-            ("Gel - Caffeine",                          "Energy Gel - Caffeine"),
+            ("Nectar Sport Energy Gel (Stim)",          "Gel - Caffeine"),
+            ("Gel - Caffeine",                          "Gel - Caffeine"),
+            ("Energy Gel - Caffeine",                   "Gel - Caffeine"),
+            ("Energy Gel - Lemon",                      "Gel - Lemon"),
+            ("Lemon + Salt Gel",                        "Gel - Lemon"),
+            ("Energy Gel",                              "Gel - Original"),
+            ("Maple Movement Energy Gel (Original)",    "Gel - Original"),
+            ("Greek Style Yogurt",                      "Yoghurt - Greek Style"),
+            ("Mini Rice Cakes",                         "Rice Cakes"),
+            ("Rolled Oats",                             "Oats"),
+            ("White Choc Protein Bar",                  "Protein Bar - White Choc"),
+            ("Fibre Boost White Choc Protein Bar",      "Protein Bar - White Choc"),
+            ("WPI Salted Caramel",                      "Protein Powder - Salted Caramel"),
+            ("Professional Whey NZ WPI Salted Caramel", "Protein Powder - Salted Caramel"),
         ]
         for old_name, new_name in food_renames:
             conn.execute("UPDATE foods SET name = ? WHERE name = ?", (new_name, old_name))
@@ -209,7 +221,7 @@ def init_db():
             conn.execute("UPDATE foods SET hidden = 1 WHERE name = ?", (name,))
 
         # Migration: rename Gel - Caffeine
-        conn.execute("UPDATE foods SET name = 'Energy Gel - Caffeine' WHERE name = 'Gel - Caffeine'")
+        conn.execute("UPDATE foods SET name = 'Gel - Caffeine' WHERE name = 'Energy Gel - Caffeine'")
 
         # Migration: update default_amounts
         default_amounts = [
@@ -217,10 +229,10 @@ def init_db():
             ("Craisins",         30),
             ("Kimchi",           30),
             ("Milk - Full Cream", 215),
-            ("Rolled Oats",      100),
+            ("Oats",             100),
             ("WPC Natural",       50),
             ("WPC Organic Cacao", 50),
-            ("WPI Salted Caramel", 50),
+            ("Protein Powder - Salted Caramel", 50),
         ]
         for name, amount in default_amounts:
             conn.execute("UPDATE foods SET default_amount = ? WHERE name = ?", (amount, name))
@@ -347,11 +359,14 @@ def init_db():
 
         # Migration: rename gel/electrolyte meals
         meal_renames = [
-            ("Maple Movement Lemon + Salt Gel", "Energy Gel - Lemon"),
+            ("Maple Movement Lemon + Salt Gel", "Gel - Lemon"),
+            ("Energy Gel - Lemon",              "Gel - Lemon"),
             ("LMNT",                            "LMNT - Watermelon"),
-            ("Nectar Sport Gel",                "Energy Gel - Caffeine"),
-            ("Gel - Caffeine",                  "Energy Gel - Caffeine"),
-            ("Maple Movement Original Gel",     "Energy Gel"),
+            ("Nectar Sport Gel",                "Gel - Caffeine"),
+            ("Gel - Caffeine",                  "Gel - Caffeine"),
+            ("Energy Gel - Caffeine",           "Gel - Caffeine"),
+            ("Maple Movement Original Gel",     "Gel - Original"),
+            ("Energy Gel",                      "Gel - Original"),
         ]
         for old_name, new_name in meal_renames:
             conn.execute("UPDATE meals SET name = ? WHERE name = ?", (new_name, old_name))
@@ -370,11 +385,11 @@ def init_db():
             ("Pecan Nuts",                       7),
             ("Fibre Boost Protein Bar",          8),
             ("LMNT - Watermelon",                9),
-            ("Energy Gel",                      10),
-            ("Energy Gel - Lemon",              11),
-            ("Energy Gel - Caffeine",           12),
+            ("Gel - Original",                  10),
+            ("Gel - Lemon",                     11),
+            ("Gel - Caffeine",                  12),
             ("WPC Cacao",                       13),
-            ("WPI Salted Caramel",              14),
+            ("Protein Powder - Salted Caramel", 14),
             ("Kimchi",                          15),
         ]
         for name, order in sort_orders:
@@ -401,13 +416,13 @@ def init_db():
 
         # Migration: add post-pecan meals if missing
         extra_meals = [
-            ("Fibre Boost Protein Bar",            8,  [("White Choc Protein Bar",                  1)]),
+            ("Fibre Boost Protein Bar",            8,  [("Protein Bar - White Choc",                1)]),
             ("LMNT - Watermelon",                  9,  [("LMNT - Watermelon",                       1)]),
-            ("Energy Gel",                        10,  [("Energy Gel",                              1)]),
-            ("Energy Gel - Lemon",                11,  [("Energy Gel - Lemon",                      1)]),
-            ("Energy Gel - Caffeine",             12,  [("Energy Gel - Caffeine",                   1)]),
-            ("WPC Cacao",                         13,  [("WPC Organic Cacao",                        50)]),
-            ("WPI Salted Caramel",                 14,  [("WPI Salted Caramel",                       50)]),
+            ("Gel - Original",                    10,  [("Gel - Original",                          1)]),
+            ("Gel - Lemon",                       11,  [("Gel - Lemon",                             1)]),
+            ("Gel - Caffeine",                    12,  [("Gel - Caffeine",                          1)]),
+            ("WPC Cacao",                         13,  [("WPC Organic Cacao",                       50)]),
+            ("Protein Powder - Salted Caramel",   14,  [("Protein Powder - Salted Caramel",         50)]),
             ("Kimchi",                            15,  [("Kimchi",                                  30)]),
         ]
         for meal_name, order, items in extra_meals:
@@ -501,7 +516,7 @@ def init_db():
             meal_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
             breakfast_items = [
                 ("WPC Natural",                             50),
-                ("Rolled Oats",                              100),
+                ("Oats",                                    100),
                 ("Frozen Banana Chunks",                    100),
                 ("Frozen Mango Chunks",                     100),
                 ("Devondale Extra Light Skim Milk",         250),
@@ -519,13 +534,13 @@ def init_db():
                 ("Almonds",                         5,  [("Almonds", 30)]),
                 ("Cashews",                         6,  [("Cashews", 30)]),
                 ("Pecan Nuts",                      7,  [("Pecan Nuts", 30)]),
-                ("Fibre Boost Protein Bar",         8,  [("White Choc Protein Bar",                  1)]),
+                ("Fibre Boost Protein Bar",         8,  [("Protein Bar - White Choc",                1)]),
                 ("LMNT - Watermelon",               9,  [("LMNT - Watermelon",                       1)]),
-                ("Energy Gel",                    10,  [("Energy Gel",                              1)]),
-                ("Energy Gel - Lemon",            11,  [("Energy Gel - Lemon",                      1)]),
-                ("Gel - Caffeine",                12,  [("Energy Gel - Caffeine",                   1)]),
-                ("WPC Cacao",                      13,  [("WPC Organic Cacao",                        50)]),
-                ("WPI Salted Caramel",             14,  [("WPI Salted Caramel",                       50)]),
+                ("Gel - Original",                10,  [("Gel - Original",                          1)]),
+                ("Gel - Lemon",                   11,  [("Gel - Lemon",                             1)]),
+                ("Gel - Caffeine",                12,  [("Gel - Caffeine",                          1)]),
+                ("WPC Cacao",                      13,  [("WPC Organic Cacao",                       50)]),
+                ("Protein Powder - Salted Caramel",14,  [("Protein Powder - Salted Caramel",         50)]),
                 ("Kimchi",                         15,  [("Kimchi",                                  30)]),
             ]:
                 conn.execute("INSERT INTO meals (name, sort_order) VALUES (?, ?)", (meal_name, sort_order))
