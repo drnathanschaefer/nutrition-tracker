@@ -188,6 +188,63 @@ Be specific, reference actual numbers, don't be preachy."""
     return JSONResponse({"feedback": feedback})
 
 
+@app.get("/export")
+async def export_day(date: str = None):
+    if not date:
+        date = today_local().isoformat()
+    entries = database.get_day_entries(date)
+    totals = database.get_day_totals(date)
+
+    from datetime import datetime
+    try:
+        fmt_date = datetime.strptime(date, "%Y-%m-%d").strftime("%A, %-d %B %Y")
+    except Exception:
+        fmt_date = date
+
+    lines = []
+    lines.append(f"Daily Food Log — {fmt_date}")
+    lines.append("=" * 50)
+
+    if not entries:
+        lines.append("\nNo food logged for this day.")
+    else:
+        nutrient_keys = ["calories", "protein", "fat", "sat_fat", "carbs", "sugar", "fibre", "calcium", "sodium"]
+        slots = {}
+        for e in entries:
+            s = e.get("meal_slot", 1)
+            slots.setdefault(s, []).append(e)
+
+        for slot_num in sorted(slots):
+            slot_entries = slots[slot_num]
+            lines.append(f"\nMEAL {slot_num}")
+            for e in slot_entries:
+                lines.append(
+                    f"  {e['name']} — {e['amount']}{e['unit_label']}  →  "
+                    f"{e['total_calories']} kcal | {e['total_protein']}g protein | "
+                    f"{e['total_carbs']}g carbs | {e['total_fat']}g fat"
+                )
+            slot_totals = {k: round(sum(e[f"total_{k}"] for e in slot_entries), 1) for k in nutrient_keys}
+            lines.append(
+                f"  ── Subtotal: {slot_totals['calories']} kcal | "
+                f"{slot_totals['protein']}g protein | {slot_totals['carbs']}g carbs | "
+                f"{slot_totals['fat']}g fat"
+            )
+
+    lines.append("\n" + "=" * 50)
+    lines.append("DAILY TOTALS")
+    lines.append(f"  Calories:  {totals['calories']} kcal")
+    lines.append(f"  Protein:   {totals['protein']}g")
+    lines.append(f"  Carbs:     {totals['carbs']}g  (sugar: {totals['sugar']}g)")
+    lines.append(f"  Fat:       {totals['fat']}g  (sat fat: {totals['sat_fat']}g)")
+    lines.append(f"  Fibre:     {totals['fibre']}g")
+    lines.append(f"  Sodium:    {totals['sodium']}mg")
+    lines.append(f"  Calcium:   {totals['calcium']}mg")
+    lines.append("\nProtein target: 200g/day")
+
+    text = "\n".join(lines)
+    return JSONResponse({"text": text, "date": date})
+
+
 @app.post("/log/clear")
 async def clear_log(log_date: str = Form(...)):
     database.delete_all_log_entries(log_date)

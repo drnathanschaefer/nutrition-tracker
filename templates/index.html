@@ -164,6 +164,36 @@
 </div>
 {% endif %}
 
+<!-- Export for Claude -->
+<div class="mt-4">
+  <button onclick="showExport()" class="w-full py-3 bg-white border border-gray-200 hover:border-blue-400 text-gray-500 hover:text-blue-700 rounded-2xl text-sm font-medium shadow-sm transition-colors">
+    📋 Export for Claude
+  </button>
+</div>
+
+<!-- Export modal -->
+<div id="export-modal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-end justify-center p-4">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-xl p-5">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="font-semibold text-gray-700">Export for Claude</h2>
+      <button onclick="closeExport()" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+    </div>
+    <textarea id="export-text" rows="14"
+              class="w-full border border-gray-200 rounded-xl p-3 text-xs font-mono text-gray-700 focus:outline-none resize-none"
+              readonly></textarea>
+    <div class="flex gap-2 mt-3">
+      <button onclick="copyExport()" id="copy-btn"
+              class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition-colors">
+        Copy to Clipboard
+      </button>
+      <button onclick="closeExport()"
+              class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl text-sm font-semibold transition-colors">
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Daily feedback -->
 {% if has_api_key %}
 <div class="mt-4">
@@ -227,6 +257,26 @@ function addFood(foodId) {
   }
   document.body.appendChild(form);
   form.submit();
+}
+
+async function showExport() {
+  const res = await fetch('/export?date={{ today }}');
+  const data = await res.json();
+  document.getElementById('export-text').value = data.text;
+  document.getElementById('export-modal').classList.remove('hidden');
+}
+
+function closeExport() {
+  document.getElementById('export-modal').classList.add('hidden');
+  document.getElementById('copy-btn').textContent = 'Copy to Clipboard';
+}
+
+async function copyExport() {
+  const text = document.getElementById('export-text').value;
+  await navigator.clipboard.writeText(text);
+  const btn = document.getElementById('copy-btn');
+  btn.textContent = '✓ Copied!';
+  setTimeout(() => btn.textContent = 'Copy to Clipboard', 2000);
 }
 
 async function getFeedback() {
