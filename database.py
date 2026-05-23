@@ -48,6 +48,7 @@ INITIAL_FOODS = [
     ("Banana",                                  "weight", "g",      120,   89,  1.1, 0.3, 0.1, 23.0, 12.2,  2.6,   5,   1,  ""),
     ("Blueberries",                             "weight", "g",       30,   57,  0.7, 0.3, 0.0, 14.5, 10.0,  2.4,   6,   1,  ""),
     ("Watermelon",                              "weight", "g",      100,   30,  0.6, 0.2, 0.0,  7.6,  6.2,  0.4,   7,   1,  ""),
+    ("Pineapple",                               "weight", "g",      100,   50,  0.5, 0.1, 0.0, 13.1,  9.9,  1.4,  13,   1,  ""),
     ("Strawberries",                            "weight", "g",       30,   32,  0.7, 0.3, 0.0,  7.7,  4.9,  2.0,  16,   1,  ""),
     ("Honey",                                   "weight", "g",       10,  304,  0.3, 0.0, 0.0, 82.4, 82.1,  0.2,   6,   4,  ""),
     ("Walnuts",                                 "weight", "g",       30,  654, 15.2,65.2, 6.1, 13.7,  2.6,  6.7,  98,   2,  ""),
@@ -303,6 +304,16 @@ def init_db():
                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""",
                     food,
                 )
+
+        # Migration: add pineapple if missing
+        if not conn.execute("SELECT 1 FROM foods WHERE name = 'Pineapple'").fetchone():
+            conn.execute(
+                """INSERT INTO foods
+                   (name, unit_type, unit_label, default_amount,
+                    calories, protein, fat, sat_fat, carbs, sugar, fibre, calcium, sodium, notes)
+                   VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                ("Pineapple", "weight", "g", 100, 50, 0.5, 0.1, 0.0, 13.1, 9.9, 1.4, 13, 1, ""),
+            )
 
         # Migration: add watermelon if missing
         if not conn.execute("SELECT 1 FROM foods WHERE name = 'Watermelon'").fetchone():
