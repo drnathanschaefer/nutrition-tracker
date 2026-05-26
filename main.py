@@ -47,7 +47,7 @@ async def today(request: Request):
             slots[slot] = {"entries": slot_entries, "totals": slot_totals}
 
     # Only show the 3 main meals in the quick-log section
-    MAIN_MEALS = {"Breakfast", "Lunch with Couscous", "Lunch with Quinoa"}
+    MAIN_MEALS = {"Breakfast", "Lunch with Couscous", "Lunch with Quinoa", "Walnuts - 30g + Brazil Nut"}
     log_meals = [m for m in meals if m["name"] in MAIN_MEALS]
 
     return templates.TemplateResponse(request=request, name="index.html", context={
